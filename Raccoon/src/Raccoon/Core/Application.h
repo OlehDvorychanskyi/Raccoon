@@ -1,5 +1,5 @@
 #pragma once 
-#include <iostream>
+#include <Raccoon/Core/Assert.h>
 
 int main(int argc, char** argv);
 
@@ -12,9 +12,8 @@ namespace Raccoon
 
         char* operator[] (std::size_t index)
         {
-            if (index < Count)
-                return Args[index];
-            return ""; 
+            RE_CORE_ASSERT(index < Count, "Args index should be less then args count");
+            return Args[index];
         }
     };
 

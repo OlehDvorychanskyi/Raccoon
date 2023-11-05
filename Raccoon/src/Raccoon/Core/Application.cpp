@@ -7,14 +7,13 @@ namespace Raccoon
     Application::Application(const ApplicationSpecification& specification)
         : m_Specification {specification}
     {
-        if (m_Instance == nullptr)
-            m_Instance = this;
-        // else 
-        //     error "Application already created"
+        RE_CORE_ASSERT(!m_Instance, "Application already created");
+        m_Instance = this;
     }
 
     Application::~Application()
     {
+
     }
 
     void Application::run()
