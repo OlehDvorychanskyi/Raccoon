@@ -1,5 +1,6 @@
 #pragma once 
 #include <Raccoon/Core/Assert.h>
+#include <Raccoon/Core/LayerStack.h>
 
 int main(int argc, char** argv);
 
@@ -33,11 +34,12 @@ namespace Raccoon
     private:
         void run();
     private:
-        static Application *m_Instance;
         ApplicationSpecification m_Specification;
+        LayerStack m_Layers;
         bool m_Running = true;
+        static Application *m_Instance;
 
-    friend int ::main(int argc, char** argv);
+        friend int ::main(int argc, char** argv);
     };
 
     Application* CreateApplication(ApplicationCommandLineArgs args);

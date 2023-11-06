@@ -3,6 +3,7 @@ project(Raccoon LANGUAGES CXX)
 set(RaccoonSources
     src/Raccoon/Core/Application.cpp
     src/Raccoon/Core/Logger.cpp
+    src/Raccoon/Core/LayerStack.cpp
 )
 
 set(RaccoonHeaders
@@ -12,6 +13,9 @@ set(RaccoonHeaders
     src/Raccoon/Core/EntryPoint.h
     src/Raccoon/Core/Logger.h
     src/Raccoon/Core/PlatformDetection.h
+    src/Raccoon/Core/Layer.h
+    src/Raccoon/Core/LayerStack.h
+
     src/Raccoon/pch.h
     src/Raccoon.h
 )
