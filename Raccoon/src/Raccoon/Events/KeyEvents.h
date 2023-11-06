@@ -10,7 +10,7 @@ namespace Raccoon
         KeyCode GetKeyCode() const { return m_KeyCode; }
 
         DECLARE_EVENT_CATEGORY(EventCategory::KeyEvent);
-        DECLARE_EVENT_DEBUG("KeyEvent");
+        OVERRIDE_EVENT_DEBUG("KeyEvent");
     protected:
         KeyEvent(KeyCode keycode)
             : m_KeyCode{keycode} { }
@@ -26,9 +26,9 @@ namespace Raccoon
 
         bool IsRepeat() const { return m_Repeat; }
 
-        DECLARE_EVENT_TYPE(EventType::KeyPressedEvent);
+        DECLARE_EVENT_TYPE(EventType::KeyPressed);
         DECLARE_EVENT_CATEGORY(EventCategory::KeyEvent);
-        DECLARE_EVENT_DEBUG("KeyPressedEvent");            
+        OVERRIDE_EVENT_DEBUG("KeyPressedEvent");            
     private:
         bool m_Repeat;
     };
@@ -41,7 +41,7 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::KeyReleased);
         DECLARE_EVENT_CATEGORY(EventCategory::KeyEvent);
-        DECLARE_EVENT_DEBUG("KeyReleasedEvent"); 
+        OVERRIDE_EVENT_DEBUG("KeyReleasedEvent"); 
     };
 
     class KeyTypedEvent : public KeyEvent
@@ -52,6 +52,6 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::KeyTyped);
         DECLARE_EVENT_CATEGORY(EventCategory::KeyEvent);
-        DECLARE_EVENT_DEBUG("KeyTypedEvent"); 
+        OVERRIDE_EVENT_DEBUG("KeyTypedEvent"); 
     };
 }

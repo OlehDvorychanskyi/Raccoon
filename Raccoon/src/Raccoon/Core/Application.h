@@ -1,6 +1,10 @@
 #pragma once 
 #include <Raccoon/Core/Assert.h>
 #include <Raccoon/Core/LayerStack.h>
+#include <Raccoon/Events/EventQueue.h>
+#include <Raccoon/Core/Window.h>
+#include <Raccoon/Events/WindowEvents.h>
+#include <Raccoon/ImGui/IMGuiLayer.h>
 
 int main(int argc, char** argv);
 
@@ -30,12 +34,25 @@ namespace Raccoon
         Application(const ApplicationSpecification& specification);
         ~Application(); 
 
+        Window& GetWindow() { return *m_Window; }
+
+        void Close(WindowCloseEvent &event);
+        void OnWindowResize(WindowResizeEvent &event);
+
+        void PushLayer(Layer *layer);
+        void PushOverlay(Layer *overlay);
+
         static Application& Get() { return *m_Instance; }
     private:
-        void run();
+        void Run();
+        void QueueEvent(std::shared_ptr<Event> event);
+        void DispatchEvent();
     private:
         ApplicationSpecification m_Specification;
+        Window *m_Window;
         LayerStack m_Layers;
+        ImGuiLayer *m_ImGuiLayer;
+        EventQueue m_Events;
         bool m_Running = true;
         static Application *m_Instance;
 

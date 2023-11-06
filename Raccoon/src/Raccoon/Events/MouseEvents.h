@@ -15,7 +15,7 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::MouseMoved);
         DECLARE_EVENT_CATEGORY(EventCategory::MouseEvent);
-        DECLARE_EVENT_DEBUG("MouseMovedEvent");
+        OVERRIDE_EVENT_DEBUG("MouseMovedEvent");
     private:
         float m_X, m_Y;
     };
@@ -31,7 +31,7 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::MouseScrolled);
         DECLARE_EVENT_CATEGORY(EventCategory::MouseEvent);
-        DECLARE_EVENT_DEBUG("MouseScrolledEvent");
+        OVERRIDE_EVENT_DEBUG("MouseScrolledEvent");
     private:
         float m_XOffset, m_YOffset;
     };
@@ -41,9 +41,8 @@ namespace Raccoon
     public:
         MouseCode GetMouseCode() const { return m_MouseCode; }
 
-        DECLARE_EVENT_TYPE(EventType::MouseButtonEvent);
         DECLARE_EVENT_CATEGORY(EventCategory::MouseEvent);
-        DECLARE_EVENT_DEBUG("MouseButtonEvent");
+        OVERRIDE_EVENT_DEBUG("MouseButtonEvent");
     protected:
         MouseButtonEvent(MouseCode mousecode)
             : m_MouseCode{mousecode} { }
@@ -57,9 +56,9 @@ namespace Raccoon
         MouseButtonPressedEvent(MouseCode mousecode)
             : MouseButtonEvent(mousecode) { }
 
-        DECLARE_EVENT_TYPE(EventType::MouseButtonEvent);
+        DECLARE_EVENT_TYPE(EventType::MouseButtonPressed);
         DECLARE_EVENT_CATEGORY(EventCategory::MouseEvent);
-        DECLARE_EVENT_DEBUG("MouseButtonPressedEvent");
+        OVERRIDE_EVENT_DEBUG("MouseButtonPressedEvent");
     };
 
     class MouseButtonReleasedEvent : public MouseButtonEvent
@@ -68,8 +67,8 @@ namespace Raccoon
         MouseButtonReleasedEvent(MouseCode mousecode)
             : MouseButtonEvent(mousecode) { }   
 
-        DECLARE_EVENT_TYPE(EventType::MouseButtonEvent);
+        DECLARE_EVENT_TYPE(EventType::MouseButtonReleased);
         DECLARE_EVENT_CATEGORY(EventCategory::MouseEvent);
-        DECLARE_EVENT_DEBUG("MouseButtonReleasedEvent");
+        OVERRIDE_EVENT_DEBUG("MouseButtonReleasedEvent");
     };
 }

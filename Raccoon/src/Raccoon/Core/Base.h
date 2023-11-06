@@ -5,6 +5,8 @@
 #define RE_EXPAND_MACRO(x) x
 #define RE_STRINGIFY_MACRO(x) #x
 
+#define BIND_EVENT_FUNCTION(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
 #ifdef RE_DEBUG
     #ifdef RE_PLATFORM_WINDOWS
         #define RE_DEBUGBREAK() __debugbreak();

@@ -10,7 +10,7 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::WindowClose);
         DECLARE_EVENT_CATEGORY(EventCategory::WindowEvent);
-        DECLARE_EVENT_DEBUG("WindowCloseEvent");
+        OVERRIDE_EVENT_DEBUG("WindowCloseEvent");
     };
 
     class WindowResizeEvent : public Event
@@ -24,7 +24,7 @@ namespace Raccoon
 
         DECLARE_EVENT_TYPE(EventType::WindowResize);
         DECLARE_EVENT_CATEGORY(EventCategory::WindowEvent);
-        DECLARE_EVENT_DEBUG("WindowResizeEvent");
+        OVERRIDE_EVENT_DEBUG("WindowResizeEvent");
     private:
         uint32_t m_Width, m_Height;
     };

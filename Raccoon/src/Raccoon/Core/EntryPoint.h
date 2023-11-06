@@ -9,6 +9,6 @@ int main(int argc, char** argv)
     Raccoon::Logger::Init();
     
     Raccoon::Application *app = Raccoon::CreateApplication({argc, argv});
-    app->run();
+    app->Run();
     delete app;
 }

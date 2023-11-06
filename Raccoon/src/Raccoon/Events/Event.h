@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+#include <memory>
 
 namespace Raccoon
 {
@@ -21,7 +23,7 @@ namespace Raccoon
     #define DECLARE_EVENT_TYPE(type) static EventType GetStaticEventType() { return type; } virtual EventType GetEventType() const override { return type; }
     #define DECLARE_EVENT_CATEGORY(category) virtual uint32_t GetEventCategory() const override { return category; } virtual bool BelongToCategory(EventCategory Category) const override { return category & Category; } 
  
-    #define RE_DEBUG
+    #ifdef RE_DEBUG
         #define DECLARE_EVENT_DEBUG() virtual const char* GetEventName() const = 0; virtual std::string ToString() const = 0;
         #define OVERRIDE_EVENT_DEBUG(name) virtual const char* GetEventName() const override { return name; }  virtual std::string ToString() const override { return name; }
     #else
@@ -33,8 +35,8 @@ namespace Raccoon
     {
         friend inline bool operator==(const std::shared_ptr<Event> &a, const std::shared_ptr<Event> &b) { return a->GetEventType() == b->GetEventType(); } 
     public:
-        virtual EventType GetEventType() = 0;
-        virtual uint32_t GetEventCategory() = 0;
+        virtual EventType GetEventType() const = 0;
+        virtual uint32_t GetEventCategory() const = 0;
         virtual bool BelongToCategory(EventCategory category) const = 0;
         virtual ~Event() = default;
 
