@@ -15,6 +15,13 @@ set(RaccoonHeaders
     src/Raccoon/Core/PlatformDetection.h
     src/Raccoon/Core/Layer.h
     src/Raccoon/Core/LayerStack.h
+    src/Raccoon/Core/KeyCodes.h
+    src/Raccoon/Core/MouseCodes.h
+
+    src/Raccoon/Events/Event.h
+    src/Raccoon/Events/KeyEvents.h
+    src/Raccoon/Events/MouseEvents.h
+    src/Raccoon/Events/WindowEvents.h
 
     src/Raccoon/pch.h
     src/Raccoon.h
