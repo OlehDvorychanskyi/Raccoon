@@ -1,0 +1,7 @@
+#include "async.cpp"
+#include "bundled_fmtlib_format.cpp"
+// #include "cfg.cpp"
+#include "color_sinks.cpp"
+// #include "file_sinks.cpp"
+#include "spdlog.cpp"
+// #include "stdout_sinks.cpp"

@@ -7,7 +7,7 @@ public:
     SandboxApplication(Raccoon::ApplicationSpecification specification)
         : Raccoon::Application(specification)
     {
-        RE_CORE_ASSERT(!true, "Application already created");
+        
     }
 };
 

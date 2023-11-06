@@ -7,10 +7,8 @@ Raccoon::Application* Raccoon::CreateApplication(ApplicationCommandLineArgs args
 int main(int argc, char** argv)
 {
     Raccoon::Logger::Init();
-
+    
     Raccoon::Application *app = Raccoon::CreateApplication({argc, argv});
     app->run();
     delete app;
-
-    return 0;
 }

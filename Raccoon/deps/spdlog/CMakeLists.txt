@@ -1,6 +1,6 @@
 project(spdlog LANGUAGES CXX)
 
-set(SPDLOG_SRCS src/spdlog.cpp src/stdout_sinks.cpp src/color_sinks.cpp src/file_sinks.cpp src/async.cpp src/cfg.cpp src/bundled_fmtlib_format.cpp)
+set(SPDLOG_SRCS src/RE_Build.cpp)
 
 add_library(spdlog STATIC ${SPDLOG_SRCS})
 

@@ -19,7 +19,7 @@ namespace Raccoon
     void Application::run()
     {
         while (m_Running)
-        {   
+        {
             
         }
     }

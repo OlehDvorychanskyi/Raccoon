@@ -30,12 +30,12 @@ namespace Raccoon
         ~Application(); 
 
         static Application& Get() { return *m_Instance; }
-    private: 
+    private:
+        void run();
+    private:
         static Application *m_Instance;
         ApplicationSpecification m_Specification;
         bool m_Running = true;
-    private:
-        void run();
 
     friend int ::main(int argc, char** argv);
     };
