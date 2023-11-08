@@ -11,6 +11,13 @@ set(RaccoonSources
     src/Raccoon/ImGui/ImGuiLayer.cpp
     
     src/Raccoon/Renderer/RendererContext.cpp
+    src/Raccoon/Renderer/IndexBuffer.cpp
+    src/Raccoon/Renderer/VertexBuffer.cpp
+    src/Raccoon/Renderer/VertexArray.cpp
+    src/Raccoon/Renderer/Renderer.cpp
+    src/Raccoon/Renderer/RendererAPI.cpp
+    src/Raccoon/Renderer/RendererCommand.cpp
+    src/Raccoon/Renderer/Shaders.cpp
 )
 
 set(RaccoonHeaders
@@ -35,6 +42,17 @@ set(RaccoonHeaders
 
     src/Raccoon/ImGui/ImGuiLayer.h
 
+    src/Raccoon/Renderer/BufferLayout.h
+    src/Raccoon/Renderer/IndexBuffer.h
+    src/Raccoon/Renderer/Renderer.h
+    src/Raccoon/Renderer/RendererContext.h
+    src/Raccoon/Renderer/VertexBuffer.h
+    src/Raccoon/Renderer/VertexArray.h
+    src/Raccoon/Renderer/Renderer.h
+    src/Raccoon/Renderer/RendererAPI.h
+    src/Raccoon/Renderer/RendererCommand.h
+    src/Raccoon/Renderer/Shaders.h
+
     src/Raccoon/pch.h
     src/Raccoon.h
 )
@@ -50,16 +68,27 @@ set(WindowsHeaders
 
 set(OpenGLSources
     src/Platforms/OpenGL/OpenGLContext.cpp
+    src/Platforms/OpenGL/OpenGLIndexBuffer.cpp
+    src/Platforms/OpenGL/OpenGLVertexBuffer.cpp
+    src/Platforms/OpenGL/OpenGLVertexArray.cpp
+    src/Platforms/OpenGL/OpenGLRendererAPI.cpp
+    src/Platforms/OpenGL/OpenGLShaders.cpp
 )
 
 set(OpenGLHeaders
     src/Platforms/OpenGL/OpenGLContext.h
+    src/Platforms/OpenGL/OpenGLIndexBuffer.h
+    src/Platforms/OpenGL/OpenGLVertexBuffer.h
+    src/Platforms/OpenGL/OpenGLVertexArray.h
+    src/Platforms/OpenGL/OpenGLRendererAPI.h
+    src/Platforms/OpenGL/OpenGLShaders.h
 )
 
 add_subdirectory(deps/spdlog)
 add_subdirectory(deps/glad)
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/imgui-docking)
+add_subdirectory(deps/glm/glm)
 
 add_library(${PROJECT_NAME} ${RaccoonSources} ${WindowsSources} ${OpenGLSources} ${RaccoonHeaders} ${WindowsHeaders} ${OpenGLHeaders})
 
@@ -71,7 +100,7 @@ target_precompile_headers(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/Raccoon/pch.h
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog glad glfw imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog glad glfw imgui glm::glm_static)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} 

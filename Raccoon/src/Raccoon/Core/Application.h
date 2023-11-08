@@ -6,6 +6,15 @@
 #include <Raccoon/Events/WindowEvents.h>
 #include <Raccoon/ImGui/IMGuiLayer.h>
 
+#include <Raccoon/Renderer/Shaders.h>
+#include <Raccoon/Renderer/IndexBuffer.h>
+#include <Raccoon/Renderer/VertexBuffer.h>
+#include <Raccoon/Renderer/VertexArray.h>
+
+#include <Raccoon/Renderer/Renderer.h>
+
+#include <memory>
+
 int main(int argc, char** argv);
 
 namespace Raccoon
@@ -57,6 +66,10 @@ namespace Raccoon
         static Application *m_Instance;
 
         friend int ::main(int argc, char** argv);
+
+    private:
+        std::shared_ptr<Shaders> m_Shaders;
+        std::shared_ptr<VertexArray> m_VertexArray;
     };
 
     Application* CreateApplication(ApplicationCommandLineArgs args);

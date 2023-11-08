@@ -1,6 +1,5 @@
 #include <Raccoon/Core/Application.h>
-
-#include <glad/glad.h> // temporary 
+#include <Raccoon/Renderer/RendererCommand.h>
 
 namespace Raccoon
 {   
@@ -19,6 +18,33 @@ namespace Raccoon
 
         m_ImGuiLayer = new ImGuiLayer();
         m_Layers.PushOverlay(m_ImGuiLayer);
+
+        Renderer::Init();
+
+        uint32_t arr[] =
+        {
+            0, 1, 2
+        };
+
+        float pos[] =
+        {
+            -0.5f, -0.5f, 0.f,
+            0.f, 0.5f, 0.f, 
+            0.5f, -0.5f, 0.f 
+        };
+
+        BufferLayout layout = {{ShaderDataType::Float3, "pos"}};
+
+        std::shared_ptr<IndexBuffer> ib = IndexBuffer::Create(arr, 3);
+
+        std::shared_ptr<VertexBuffer> vb = VertexBuffer::Create(pos, sizeof(pos));
+        vb->SetLayout(layout);
+
+        m_VertexArray = VertexArray::Create();
+        m_VertexArray->SetIndexBuffer(ib);
+        m_VertexArray->AddVertexBuffer(vb);
+
+        m_Shaders = Shaders::Create("Vertex.txt", "Fragment.txt");
     }
 
     Application::~Application()
@@ -35,7 +61,12 @@ namespace Raccoon
             for (Layer *layer : m_Layers)
                 layer->OnUpdate();
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            RendererCommand::Clear({0.1f, 0.1f, 0.1f, 1.f});
+            
+            Renderer::Begin();
+            m_Shaders->Bind();
+            Renderer::Submit(m_VertexArray);
+            Renderer::End();
             
             m_ImGuiLayer->Begin();
             for (Layer *layer : m_Layers)
