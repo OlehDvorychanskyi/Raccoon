@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+#include <Raccoon/Core/TimeStep.h>
+
 namespace Raccoon
 {
     #ifdef RE_DEBUG
@@ -19,7 +21,7 @@ namespace Raccoon
         virtual void OnAttach() {}
         virtual void OnDetach() {}
         virtual void OnEvent(Event &event) {}
-        virtual void OnUpdate() {}
+        virtual void OnUpdate(const TimeStep &timestep) {}
         virtual void OnImGuiRender() {}
 
         std::uint32_t GetIndex() const { return m_Index; }

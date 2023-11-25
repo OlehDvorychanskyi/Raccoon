@@ -1,6 +1,10 @@
 #include <Raccoon/Core/Application.h>
 #include <Raccoon/Renderer/RendererCommand.h>
 
+#include <Raccoon/Core/TimeStep.h>
+
+#include <Raccoon/Debug/Timer.h>
+
 namespace Raccoon
 {   
     Application* Application::m_Instance = nullptr;
@@ -8,6 +12,8 @@ namespace Raccoon
     Application::Application(const ApplicationSpecification& specification)
         : m_Specification {specification}
     {
+        Timer timer("Initialization");
+        
         RE_CORE_ASSERT(!m_Instance, "Application already created");
         m_Instance = this;
 
@@ -20,54 +26,27 @@ namespace Raccoon
         m_Layers.PushOverlay(m_ImGuiLayer);
 
         Renderer::Init();
-
-        uint32_t arr[] =
-        {
-            0, 1, 2
-        };
-
-        float pos[] =
-        {
-            -0.5f, -0.5f, 0.f,
-            0.f, 0.5f, 0.f, 
-            0.5f, -0.5f, 0.f 
-        };
-
-        BufferLayout layout = {{ShaderDataType::Float3, "pos"}};
-
-        std::shared_ptr<IndexBuffer> ib = IndexBuffer::Create(arr, 3);
-
-        std::shared_ptr<VertexBuffer> vb = VertexBuffer::Create(pos, sizeof(pos));
-        vb->SetLayout(layout);
-
-        m_VertexArray = VertexArray::Create();
-        m_VertexArray->SetIndexBuffer(ib);
-        m_VertexArray->AddVertexBuffer(vb);
-
-        m_Shaders = Shaders::Create("Vertex.txt", "Fragment.txt");
-    }
+    } 
 
     Application::~Application()
     {
         delete m_Window;
+        Renderer::Shutdown();
     }
 
     void Application::Run()
     {
+        TimeStep deltaTime;
         while (m_Running)
         {
+            Timer timer("Main Loop");
+            deltaTime.Update();
             DispatchEvent();
 
             for (Layer *layer : m_Layers)
-                layer->OnUpdate();
+                layer->OnUpdate(deltaTime);
+            
 
-            RendererCommand::Clear({0.1f, 0.1f, 0.1f, 1.f});
-            
-            Renderer::Begin();
-            m_Shaders->Bind();
-            Renderer::Submit(m_VertexArray);
-            Renderer::End();
-            
             m_ImGuiLayer->Begin();
             for (Layer *layer : m_Layers)
                 layer->OnImGuiRender();
@@ -87,9 +66,7 @@ namespace Raccoon
         std::shared_ptr<Event> event;
         while ((event = m_Events.GetFront()) != nullptr) 
         {   
-            RE_CORE_INFO(event->ToString());
-
-            EventDispacher dispatcher(*event);
+            EventDispatcher dispatcher(*event);
             dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNCTION(Close));
             dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FUNCTION(OnWindowResize));
 
@@ -116,6 +93,7 @@ namespace Raccoon
     {
         RE_CORE_INFO("Window resized");
         auto type = event.GetEventType();
+        Renderer::SetViewport(event.GetWidth(), event.GetHeight());
     }
 
     void Application::PushLayer(Layer *layer)

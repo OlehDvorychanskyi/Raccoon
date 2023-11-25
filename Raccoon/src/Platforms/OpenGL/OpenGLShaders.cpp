@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <fstream>
+#include <sstream>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -12,7 +13,11 @@ namespace Raccoon
     {
         uint32_t vertex = CompileShader(vertexFilePath, ShaderType::Vertex);
         uint32_t fragment = CompileShader(fragmentFilePath, ShaderType::Fragment);
-        CreateShaderProgram(vertex, fragment);        
+        
+        CreateShaderProgram(vertex, fragment);    
+        
+        ExtractUniforms(ShaderType::Vertex);
+        ExtractUniforms(ShaderType::Fragment);
     }
 
     uint32_t OpenGLShaders::CompileShader(const std::string &filePath, ShaderType shaderType)
@@ -49,6 +54,8 @@ namespace Raccoon
         glAttachShader(m_Id, fragment);
         glLinkProgram(m_Id);
 
+        CheckLinkErrors();
+
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     }
@@ -84,6 +91,33 @@ namespace Raccoon
         }
     }
 
+    void OpenGLShaders::ExtractUniforms(ShaderType type)
+    {
+        std::istringstream sourceStream(m_SourceCode[type]);
+        std::string line;
+        while (std::getline(sourceStream, line)) 
+        {
+            std::size_t temp = line.find("uniform");
+            if (temp != std::string::npos)
+            {
+                std::istringstream lineStream(line.substr(temp, line.size()));
+                std::string qualifier, type, name;
+                lineStream >> qualifier >> type >> name;
+
+                name.erase(std::remove(name.begin(), name.end(), ';'), name.end());
+                size_t pos = name.find('[');
+                if (pos != std::string::npos) 
+                {
+                    name = name.substr(0, pos);
+                }
+
+                uint32_t location = glGetUniformLocation(m_Id, name.c_str());
+                RE_CORE_ASSERT(location != -1, "Couldn't get uniform location for uniform");
+                m_Uniforms[name] = location;
+            }
+        }
+    }
+
     void OpenGLShaders::Bind() const 
     { 
         glUseProgram(m_Id);
@@ -96,61 +130,85 @@ namespace Raccoon
 
     void OpenGLShaders::SetBool(const std::string &name, bool value) 
     {
-        glUniform1i(glGetUniformLocation(m_Id, name.c_str()), (int)value);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform1i(element->second, (int)value);
     }
     
     void OpenGLShaders::SetInt(const std::string &name, int value) 
     {
-        glUniform1i(glGetUniformLocation(m_Id, name.c_str()), value);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform1i(element->second, value);
     }
 
     void OpenGLShaders::SetInt2(const std::string &name, const glm::ivec2 &value) 
     {
-        glUniform2i(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform2i(element->second, value.x, value.y);
     }
 
     void OpenGLShaders::SetInt3(const std::string &name, const glm::ivec3 &value) 
     {
-        glUniform3i(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform3i(element->second, value.x, value.y, value.z);
     }
 
     void OpenGLShaders::SetInt4(const std::string &name, const glm::ivec4 &value) 
     {
-        glUniform4f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z, value.w);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform4f(element->second, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShaders::SetArrayInt(const std::string &name, int* data, int count) 
     {
-        glUniform1iv(glGetUniformLocation(m_Id, name.c_str()), count, data);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform1iv(element->second, count, data);
     }
 
     void OpenGLShaders::SetFloat(const std::string &name, float value) 
     {
-        glUniform1f(glGetUniformLocation(m_Id, name.c_str()), value);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform1f(element->second, value);
     }
 
     void OpenGLShaders::SetFloat2(const std::string &name, const glm::vec2 &value) 
     {
-        glUniform2f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform2f(element->second, value.x, value.y);
     }
 
     void OpenGLShaders::SetFloat3(const std::string &name, const glm::vec3 &value) 
     {
-        glUniform3f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform3f(element->second, value.x, value.y, value.z);
     }
 
     void OpenGLShaders::SetFloat4(const std::string &name, const glm::vec4 &value) 
     {
-        glUniform4f(glGetUniformLocation(m_Id, name.c_str()), value.x, value.y, value.z, value.w);
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniform4f(element->second, value.x, value.y, value.z, value.w);
     }
 
     void OpenGLShaders::SetMat3(const std::string &name, const glm::mat3 &value) 
     {
-        glUniformMatrix3fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniformMatrix3fv(element->second, 1, GL_FALSE, glm::value_ptr(value));
     }
 
     void OpenGLShaders::SetMat4(const std::string &name, const glm::mat4 &value) 
     {
-        glUniformMatrix4fv(glGetUniformLocation(m_Id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+        auto element = m_Uniforms.find(name);
+        RE_CORE_ASSERT(element != m_Uniforms.end(), "Couldn't find uniform");
+        glUniformMatrix4fv(element->second, 1, GL_FALSE, glm::value_ptr(value));
     }
 }

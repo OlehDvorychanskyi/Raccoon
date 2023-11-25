@@ -37,6 +37,8 @@ namespace Raccoon
         m_Context = RendererContext::Create(m_Window);
         m_Context->Init();
 
+        SetVSync(props.VSync);
+
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
@@ -104,6 +106,15 @@ namespace Raccoon
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             data.Callback(std::make_shared<KeyTypedEvent>(keycode));
         });
+    }
+
+    void WindowsWindow::SetVSync(bool value)
+    {   
+        if (value == true)
+            glfwSwapInterval(1);
+        else    
+            glfwSwapInterval(0);
+        m_Data.VSync = value;
     }
 
     void WindowsWindow::Shutdown()

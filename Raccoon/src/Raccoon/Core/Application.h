@@ -66,10 +66,6 @@ namespace Raccoon
         static Application *m_Instance;
 
         friend int ::main(int argc, char** argv);
-
-    private:
-        std::shared_ptr<Shaders> m_Shaders;
-        std::shared_ptr<VertexArray> m_VertexArray;
     };
 
     Application* CreateApplication(ApplicationCommandLineArgs args);

@@ -41,9 +41,11 @@ namespace Raccoon
         void CheckCompileErrors(uint32_t shader, const std::string &filePath);
         void CheckLinkErrors();
         void CreateShaderProgram(uint32_t vertex, uint32_t fragment);
+        void ExtractUniforms(ShaderType type);
     private:
         uint32_t m_Id;
         std::unordered_map<ShaderType, std::string> m_FilePath;
         std::unordered_map<ShaderType, std::string> m_SourceCode;
+        std::unordered_map<std::string, uint32_t> m_Uniforms;
     };
 }

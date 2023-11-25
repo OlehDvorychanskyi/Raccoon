@@ -13,19 +13,25 @@ namespace Raccoon
         ~WindowsWindow();
 
         void OnUpdate() override;
+
+        virtual void SetVSync(bool value) override;
+        virtual bool GetVSync() const override { return m_Data.VSync; }
+
+        virtual float GetAspectRatio() const override { return (float)GetWidth() / (float)GetHeight(); }
         
-        void SetEventCallback(const EventCallback &callback) override { m_Data.Callback = callback; }
+        virtual void SetEventCallback(const EventCallback &callback) override { m_Data.Callback = callback; }
         
-        void* GetNativeWindow() const override { return m_Window; }
+        virtual void* GetNativeWindow() const override { return m_Window; }
         
-        uint32_t GetWidth() const override { return m_Data.Width; }
-        uint32_t GetHeight() const override { return m_Data.Height; }
+        virtual uint32_t GetWidth() const override { return m_Data.Width; }
+        virtual uint32_t GetHeight() const override { return m_Data.Height; }
     private:
         struct WindowData
         {
             std::string Title;
             uint32_t Width;
             uint32_t Height;
+            bool VSync;
             EventCallback Callback;
         };
         WindowData m_Data;

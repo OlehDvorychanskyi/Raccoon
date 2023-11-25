@@ -1,5 +1,7 @@
 #pragma once
 #include <Raccoon/Renderer/RendererAPI.h>
+#include <Raccoon/Renderer/OrthographicCamera.h>
+#include <Raccoon/Renderer/Shaders.h>
 
 namespace Raccoon
 {
@@ -9,13 +11,21 @@ namespace Raccoon
         static void Init();
         static void Shutdown(); 
 
-        static void Begin(/*Env data*/);
+        static void SetViewport(uint32_t width, uint32_t height);
+        static uint32_t GetMaxTextureUnits();
+
+        static void Begin(OrthographicCamera &camera);
         static void End();
 
-        static void Submit(const std::shared_ptr<VertexArray> &vertexArray);
+        static void Submit(const std::shared_ptr<Shaders> &shaders, const std::shared_ptr<VertexArray> &vertexArray, const glm::mat4 &transform = glm::mat4(1.f));
 
         static RendererAPI::API GetAPI() { return RendererAPI::API::OpenGL; } 
     private:
-        // Scene data 
+        struct SceneData
+        {
+            glm::mat4 ViewProjectionMatrix;
+        };
+        
+        static std::shared_ptr<SceneData> m_Data;
     };
 }

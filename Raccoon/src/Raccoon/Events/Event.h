@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
+#include <string>
 
 namespace Raccoon
 {
@@ -45,10 +46,10 @@ namespace Raccoon
         bool Handled = false;
     };
 
-    class EventDispacher
+    class EventDispatcher
     {
     public:
-        EventDispacher(Event &event)
+        EventDispatcher(Event &event)
             : m_Event(event) {}
         
         template <typename DynamicEventType, typename CallbackType>
