@@ -64,6 +64,13 @@ namespace Raccoon
     };
     static RectangleData s_RectangleData;
 
+    enum class RendererObject2DType
+    {
+        None = 0,
+        ColoredRectangle,
+        TexturedRectangle
+    };
+
     struct RendererData
     {
         static constexpr uint32_t MaxInstances = 20000;
@@ -72,6 +79,9 @@ namespace Raccoon
         uint32_t MaxTextureUnits;
 
         glm::mat4 ViewProjectionMatrix;
+
+        RendererObject2DType CurrentRendererObject = RendererObject2DType::None;
+        Renderer2D::Stats Renderer2DStats;
     };
     static RendererData s_RendererData; 
 
@@ -176,19 +186,50 @@ namespace Raccoon
     void Renderer2D::End()
     {
         Renderer2D::EndBatch();
+        
     }
 
     void Renderer2D::BeginBatch()
     {
+        Renderer2D::BeginColoredRectangle();
+        Renderer2D::BeginTexturedRectangle();
+
+        s_RendererData.CurrentRendererObject = RendererObject2DType::None;
+    }
+
+    void Renderer2D::BeginColoredRectangle()
+    {
         s_ColoredRectangleData.IndexCount = 0;
         s_ColoredRectangleData.CurrentVertex = s_ColoredRectangleData.BeginVertex;
+    }
 
+    void Renderer2D::BeginTexturedRectangle()
+    {
         s_TexturedRectangleData.IndexCount = 0;
         s_TexturedRectangleData.CurrentVertex = s_TexturedRectangleData.BeginVertex;
         s_TexturedRectangleData.CurrentTextureUnit = 1;
     }
 
     void Renderer2D::EndBatch()
+    {
+        Renderer2D::FlushColoredRectangle();
+        Renderer2D::FlushTexturedRectangle();
+    }
+
+    void Renderer2D::Flush()
+    {
+        switch (s_RendererData.CurrentRendererObject)
+        {
+        case RendererObject2DType::ColoredRectangle:
+            Renderer2D::NextBatchColoredRectangle();
+            break;
+        case RendererObject2DType::TexturedRectangle:
+            Renderer2D::NextBatchTexturedRectangle();
+            break;
+        };
+    }
+
+    void Renderer2D::FlushColoredRectangle()
     {
         if (s_ColoredRectangleData.IndexCount > 0u)
         {
@@ -201,8 +242,12 @@ namespace Raccoon
             s_ColoredRectangleData.Shaders->Bind();
             s_ColoredRectangleData.Shaders->SetMat4("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
             RendererCommand::DrawIndexed(s_ColoredRectangleData.VertexArray, s_ColoredRectangleData.IndexCount);
+            ++s_RendererData.Renderer2DStats.DrawCalls;
         }
+    }
 
+    void Renderer2D::FlushTexturedRectangle()
+    {   
         if (s_TexturedRectangleData.IndexCount > 0u)
         {
             uint32_t verticesNumber = s_TexturedRectangleData.CurrentVertex - s_TexturedRectangleData.BeginVertex;
@@ -217,13 +262,22 @@ namespace Raccoon
             s_TexturedRectangleData.Shaders->Bind();
             s_TexturedRectangleData.Shaders->SetMat4("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
             RendererCommand::DrawIndexed(s_TexturedRectangleData.VertexArray, s_TexturedRectangleData.IndexCount);
+            ++s_RendererData.Renderer2DStats.DrawCalls;
         }
     }
 
-    void Renderer2D::NextBatch()
+    void Renderer2D::NextBatchColoredRectangle()
     {
-        Renderer2D::EndBatch();
-        Renderer2D::BeginBatch();
+        Renderer2D::FlushColoredRectangle();
+        Renderer2D::BeginColoredRectangle();
+        s_RendererData.CurrentRendererObject = RendererObject2DType::None;
+    }
+
+    void Renderer2D::NextBatchTexturedRectangle()
+    {
+        Renderer2D::FlushTexturedRectangle();
+        Renderer2D::BeginTexturedRectangle();
+        s_RendererData.CurrentRendererObject = RendererObject2DType::None;
     }
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color)
@@ -240,8 +294,16 @@ namespace Raccoon
 
     void Renderer2D::DrawRectangle(const glm::mat4 &transform, const glm::vec4 &color)
     {
+        if (s_RendererData.CurrentRendererObject != RendererObject2DType::ColoredRectangle && s_RendererData.CurrentRendererObject != RendererObject2DType::None)
+        {
+            Renderer2D::Flush();
+        }   
+        s_RendererData.CurrentRendererObject = RendererObject2DType::ColoredRectangle;         
+
         if (s_ColoredRectangleData.IndexCount >= RendererData::MaxIndices)
-            Renderer2D::NextBatch();
+        {
+            Renderer2D::NextBatchColoredRectangle();
+        }
 
         for (uint32_t i = 0; i < 4; ++i) // 4 because there is 4 vertices in Rectangle
 		{
@@ -289,8 +351,14 @@ namespace Raccoon
 
     void Renderer2D::DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color)
     {
+        if (s_RendererData.CurrentRendererObject != RendererObject2DType::TexturedRectangle && s_RendererData.CurrentRendererObject != RendererObject2DType::None)
+        {
+            Renderer2D::Flush();
+        }   
+        s_RendererData.CurrentRendererObject = RendererObject2DType::TexturedRectangle;
+
         if (s_TexturedRectangleData.IndexCount >= RendererData::MaxIndices)
-            Renderer2D::NextBatch();
+            Renderer2D::NextBatchTexturedRectangle();
 
         uint32_t textureIndex = 0u;
         for (uint32_t i = 0; i < s_TexturedRectangleData.CurrentTextureUnit; i++)
@@ -305,7 +373,7 @@ namespace Raccoon
         if (textureIndex == 0u)
         {
             if (s_TexturedRectangleData.CurrentTextureUnit >= s_RendererData.MaxTextureUnits)
-				NextBatch();
+				Renderer2D::NextBatchTexturedRectangle();
 
 			textureIndex = s_TexturedRectangleData.CurrentTextureUnit;
 			s_TexturedRectangleData.TextureUnits[s_TexturedRectangleData.CurrentTextureUnit] = texture;
@@ -334,4 +402,15 @@ namespace Raccoon
             Renderer2D::DrawRectangle(particle.Position, {particle.CurrentSize, particle.CurrentSize}, particle.CurrentColor);
         }
     }
+
+    void Renderer2D::ResetStats()
+    {
+        s_RendererData.Renderer2DStats.DrawCalls = 0;
+    }
+
+    Renderer2D::Stats Renderer2D::GetStats()
+    {
+        return s_RendererData.Renderer2DStats;
+    }
+
 }

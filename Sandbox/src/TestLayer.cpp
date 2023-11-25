@@ -24,15 +24,15 @@ void TestLayer::OnAttach()
     m_Grass = Raccoon::Sprite::CreateFromOffset(m_Sprites, {16.f, 16.f}, {32.f, 0.f});
     m_Water = Raccoon::Sprite::CreateFromOffset(m_Sprites, {16.f, 16.f}, {0.f, 0.f});
 
-    m_Particle.BeginColor = {0.9f, 0.9f, 0.9f, 0.3f};
+    m_Particle.BeginColor = {0.9f, 0.9f, 0.9f, 0.1f};
     m_Particle.EndColor = {0.94f, 0.5f, 0.074f, 1.f};
 
     m_Particle.BeginSize = 0.3f;
     m_Particle.EndSize = 0.01f;
 
-    m_Particle.Position = {0.f, 0.f};
+    m_Particle.Position = {5.f, 0.f};
 
-    m_Particle.Velocity = {0.f, 0.1f};
+    m_Particle.Velocity = {0.f, 0.2f};
     m_Particle.VelocityRangeX = {-0.5f, 0.5f}; 
     m_Particle.VelocityRangeY = {0.1f, 0.5f};
 }   
@@ -56,14 +56,16 @@ void TestLayer::OnUpdate(const Raccoon::TimeStep &timestep)
     m_ParticleSystem.Emit(m_Particle);
 
     Raccoon::RendererCommand::Clear({0.4f, 0.4f, 0.4f, 1.f});
-
+    Raccoon::Renderer2D::ResetStats();
     Raccoon::Renderer2D::Begin(m_CameraController.GetCamera());
     Raccoon::Renderer2D::DrawRectangle({0.f, 0.f}, {2.f, 2.f}, m_GrassTexture);
-    Raccoon::Renderer2D::DrawParticles(m_ParticleSystem);
     Raccoon::Renderer2D::DrawRectangle({0.f, 0.f}, {1.f, 1.f}, m_ChapelTexture);
     Raccoon::Renderer2D::DrawRectangle({5.f, 0.f}, {1.f, 1.f}, m_Grass);
     Raccoon::Renderer2D::DrawRectangle({7.f, 0.f}, {1.f, 1.f}, m_Water);
+    Raccoon::Renderer2D::DrawParticles(m_ParticleSystem);
+    
     Raccoon::Renderer2D::End();
+    RE_INFO("DrawCalls: {0}", Raccoon::Renderer2D::GetStats().DrawCalls);
 
 
     

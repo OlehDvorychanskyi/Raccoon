@@ -41,6 +41,15 @@ namespace Raccoon
 
         static void DrawParticles(const ParticleSystem2D &particles);
 
+    public:
+        struct Stats
+        {
+            uint32_t DrawCalls = 0;  
+        };
+        
+        static void ResetStats();
+        static Stats GetStats();
+
     private:    
         static void DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color);
 
@@ -56,11 +65,23 @@ namespace Raccoon
             // Send texture index as a uniform
         // ---------------------------------------------------
         static void BeginBatch();
-        static void NextBatch();
         static void EndBatch();
 
+        static void NextBatchColoredRectangle();
+        static void NextBatchTexturedRectangle();
+
+        static void Flush();
+        static void FlushColoredRectangle();
+        static void FlushTexturedRectangle();
+        static void BeginColoredRectangle();
+        static void BeginTexturedRectangle();
+
+    private:
+        
+        
         // ----- TO DO: --------------------------------------
             // Add some stats(draw calls, memory usage...)
         // ---------------------------------------------------
+    
     };   
 }
