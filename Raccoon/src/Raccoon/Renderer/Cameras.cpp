@@ -1,8 +1,9 @@
 #include <Raccoon/Renderer/Cameras.h>
 #include <Raccoon/Events/WindowEvents.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-// #include <glm/gtx/matrix_transform_2d.hpp> // for future
+#include <glm/gtx/matrix_transform_2d.hpp>
+
+#include <Raccoon/Math/Ortho.h>
 
 namespace Raccoon
 {
@@ -71,7 +72,7 @@ namespace Raccoon
         float orthoBottom = -m_OrthographicSize;
         float orthoTop = m_OrthographicSize;
 
-        m_Projection = glm::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop);
+        m_Projection = Raccoon::ortho(orthoLeft, orthoRight, orthoBottom, orthoTop);
     }
     
     // -------------------------------------------------------------------------------------------------------------------------------------

@@ -17,21 +17,7 @@ namespace Raccoon
         glm::mat3 m_Projection = glm::mat3(1.f);
     };
 
-
-    class Camera
-    {
-    public:
-        Camera() = default;
-        virtual ~Camera() = default;
-
-        virtual void OnUpdate() = 0;
-
-        const glm::mat4& GetProjection() { return m_Projection; }
-    protected:
-        glm::mat4 m_Projection = glm::mat4(1.f);
-    };
-
-    class OrthographicCamera : public Camera
+    class OrthographicCamera : public Camera2D
     {
     public:
         OrthographicCamera();

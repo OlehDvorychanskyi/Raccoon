@@ -17,9 +17,7 @@ namespace Raccoon
         static void Init();
         static void Shutdown();
 
-        // static void Begin(OrthographicCamera &camera);
-        // static void Begin(RendererCamera3D &camera);
-        static void Begin(Camera &camera, const glm::mat4 &transform);
+        static void Begin(Camera2D &camera, const glm::mat3 &transform);
         static void End();
         
         // ----- TO DO: --------------------------------------
@@ -30,15 +28,15 @@ namespace Raccoon
             // Change glm::vec4 color to int color or to Raccoon::Color
         // ---------------------------------------------------
 
-        static void DrawRectangle(const glm::mat4 &transform, const glm::vec4 &color);      
+        static void DrawRectangle(const glm::mat3 &transform, const glm::vec4 &color);      
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color);
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const glm::vec4 &color);
 
-        static void DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
+        static void DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
 
-        static void DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
+        static void DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
         static void DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color = {1.f, 1.f, 1.f, 1.f});
 
@@ -54,7 +52,7 @@ namespace Raccoon
         static Stats GetStats();
 
     private:    
-        static void DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color);
+        static void DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color);
 
         // ----- TO DO: --------------------------------------
             // Draw Circle 

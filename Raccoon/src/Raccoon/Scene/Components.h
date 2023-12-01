@@ -1,6 +1,7 @@
 #pragma once 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <string>
 
 #include <Raccoon/Renderer/Texture2D.h>
@@ -36,9 +37,9 @@ namespace Raccoon
         Transform2DComponent(const glm::vec2 &translation)
             : Translation{translation} {}
 
-        glm::mat4 GetTransform() const
+        glm::mat3 GetTransform() const
 		{
-			return glm::translate(glm::mat4(1.0f), glm::vec3(Translation, 0.f)) * glm::rotate(glm::mat4(1.f), glm::radians(Rotation), glm::vec3(0.f, 0.f, 1.f)) * glm::scale(glm::mat4(1.0f), glm::vec3(Scale, 1.f));
+			return glm::translate(glm::mat3(1.0f), glm::vec2(Translation)) * glm::rotate(glm::mat3(1.f), glm::radians(Rotation)) * glm::scale(glm::mat3(1.0f), glm::vec2(Scale));
 		}
     };
 

@@ -68,3 +68,5 @@ add_library(glm_static STATIC ${ROOT_TEXT} ${ROOT_MD} ${ROOT_NAT}
 # 	target_link_libraries(glm_shared PUBLIC glm)
 # 	add_library(glm::glm_shared ALIAS glm_shared)
 # endif()
+
+target_compile_definitions(glm_static PUBLIC GLM_ENABLE_EXPERIMENTAL)

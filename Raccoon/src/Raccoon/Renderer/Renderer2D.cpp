@@ -6,8 +6,8 @@
 
 #include <Raccoon/Renderer/RendererCommand.h>
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 #include <vector>
 
@@ -15,13 +15,13 @@ namespace Raccoon
 {
     struct ColoredRectangleVertex
     {
-        glm::vec3 Position;
+        glm::vec2 Position;
         glm::vec4 Color;    
     };
 
     struct TexturedRectangleVertex
     {
-        glm::vec3 Position;
+        glm::vec2 Position;
         glm::vec4 Color; 
         glm::vec2 TextureCoords;
         float TextureIndex;
@@ -59,7 +59,7 @@ namespace Raccoon
 
     struct RectangleData
     {
-        glm::vec4 RectangleVertexPositions[4];    
+        glm::vec3 RectangleVertexPositions[4];    
         glm::vec2 RectangleTextureCoords[4];
     };
     static RectangleData s_RectangleData;
@@ -78,7 +78,7 @@ namespace Raccoon
 		static constexpr uint32_t MaxIndices = MaxInstances * 6;
         uint32_t MaxTextureUnits;
 
-        glm::mat4 ViewProjectionMatrix;
+        glm::mat3 ViewProjectionMatrix;
 
         RendererObject2DType CurrentRendererObject = RendererObject2DType::None;
         Renderer2D::Stats Renderer2DStats;
@@ -109,10 +109,10 @@ namespace Raccoon
         std::shared_ptr<IndexBuffer> RectangleIndexBuffer = IndexBuffer::Create(RectangleIndices, RendererData::MaxIndices);
         delete[] RectangleIndices;
 
-        s_RectangleData.RectangleVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-		s_RectangleData.RectangleVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
-		s_RectangleData.RectangleVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		s_RectangleData.RectangleVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+        s_RectangleData.RectangleVertexPositions[0] = { -0.5f, -0.5f, 1.0f };
+		s_RectangleData.RectangleVertexPositions[1] = {  0.5f, -0.5f, 1.0f };
+		s_RectangleData.RectangleVertexPositions[2] = {  0.5f,  0.5f, 1.0f };
+		s_RectangleData.RectangleVertexPositions[3] = { -0.5f,  0.5f, 1.0f };
 
         s_RectangleData.RectangleTextureCoords[0] = { 0.0f, 0.0f };
         s_RectangleData.RectangleTextureCoords[1] = { 1.0f, 0.0f };
@@ -125,7 +125,7 @@ namespace Raccoon
 
         s_ColoredRectangleData.VertexBuffer = VertexBuffer::Create(s_RendererData.MaxVertices * sizeof(ColoredRectangleVertex));
         s_ColoredRectangleData.VertexBuffer->SetLayout({
-            {ShaderDataType::Float3, "a_Position"},
+            {ShaderDataType::Float2, "a_Position"},
             {ShaderDataType::Float4, "a_Color"}
         });
         s_ColoredRectangleData.BeginVertex = new ColoredRectangleVertex[RendererData::MaxVertices];
@@ -142,7 +142,7 @@ namespace Raccoon
         
         s_TexturedRectangleData.VertexBuffer = VertexBuffer::Create(s_RendererData.MaxVertices * sizeof(TexturedRectangleVertex));
         s_TexturedRectangleData.VertexBuffer->SetLayout({
-            {ShaderDataType::Float3, "a_Position"},
+            {ShaderDataType::Float2, "a_Position"},
             {ShaderDataType::Float4, "a_Color"},
             {ShaderDataType::Float2, "a_TextureCoords"},
             {ShaderDataType::Float, "a_TextureIndex"}
@@ -172,29 +172,7 @@ namespace Raccoon
         delete[] s_TexturedRectangleData.BeginVertex;
     }
 
-    // void Renderer2D::Begin(OrthographicCamera &camera)
-    // {
-    //     camera.OnUpdate();
-    //     s_RendererData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-    //     // ----- TO DO: --------------------------------------
-    //         // Send ViewProjectionMatrix to the shaders once per scene here
-    //     // ---------------------------------------------------
-
-    //     Renderer2D::BeginBatch();
-    // }
-
-    // void Renderer2D::Begin(RendererCamera3D &camera)
-    // {
-    //     camera.OnUpdate();
-    //     s_RendererData.ViewProjectionMatrix = camera.GetProjection() * camera.GetView();
-    //     // ----- TO DO: --------------------------------------
-    //         // Send ViewProjectionMatrix to the shaders once per scene here
-    //     // ---------------------------------------------------
-
-    //     Renderer2D::BeginBatch();
-    // }
-
-    void Renderer2D::Begin(Camera &camera, const glm::mat4 &transform)
+    void Renderer2D::Begin(Camera2D &camera, const glm::mat3 &transform)
     {
         camera.OnUpdate();
         s_RendererData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
@@ -262,7 +240,7 @@ namespace Raccoon
             s_ColoredRectangleData.VertexBuffer->SetData(s_ColoredRectangleData.BeginVertex, dataSize);
 
             s_ColoredRectangleData.Shaders->Bind();
-            s_ColoredRectangleData.Shaders->SetMat4("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
+            s_ColoredRectangleData.Shaders->SetMat3("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
             RendererCommand::DrawIndexed(s_ColoredRectangleData.VertexArray, s_ColoredRectangleData.IndexCount);
             ++s_RendererData.Renderer2DStats.DrawCalls;
         }
@@ -282,7 +260,7 @@ namespace Raccoon
                 s_TexturedRectangleData.TextureUnits[i]->Bind(i);
 
             s_TexturedRectangleData.Shaders->Bind();
-            s_TexturedRectangleData.Shaders->SetMat4("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
+            s_TexturedRectangleData.Shaders->SetMat3("u_ViewProjection", s_RendererData.ViewProjectionMatrix);
             RendererCommand::DrawIndexed(s_TexturedRectangleData.VertexArray, s_TexturedRectangleData.IndexCount);
             ++s_RendererData.Renderer2DStats.DrawCalls;
         }
@@ -304,17 +282,17 @@ namespace Raccoon
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color)
     {        
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, color);
     }
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const glm::vec4 &color)
     {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::rotate(glm::mat3(1.0f), glm::radians(rotationAngle)) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, color);
     }
 
-    void Renderer2D::DrawRectangle(const glm::mat4 &transform, const glm::vec4 &color)
+    void Renderer2D::DrawRectangle(const glm::mat3 &transform, const glm::vec4 &color)
     {
         if (s_RendererData.CurrentRendererObject != RendererObject2DType::ColoredRectangle && s_RendererData.CurrentRendererObject != RendererObject2DType::None)
         {
@@ -339,39 +317,39 @@ namespace Raccoon
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color)
     {        
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, texture, color);
     }
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color)
     {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::rotate(glm::mat3(1.0f), glm::radians(rotationAngle)) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, texture, color);
     }
 
-    void Renderer2D::DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color)
+    void Renderer2D::DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec4 &color)
     {
         Renderer2D::DrawRectangle(transform, texture, s_RectangleData.RectangleTextureCoords, color); 
     }
 
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color)
     {
-         glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, sprite, color);
     }
     
     void Renderer2D::DrawRectangle(const glm::vec2 &position, const glm::vec2 &size, float rotationAngle, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color)
     {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f)) * glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        glm::mat3 transform = glm::translate(glm::mat3(1.0f), position) * glm::rotate(glm::mat3(1.0f), glm::radians(rotationAngle)) * glm::scale(glm::mat3(1.0f), size);
         Renderer2D::DrawRectangle(transform, sprite, color);
     }
 
-    void Renderer2D::DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color)
+    void Renderer2D::DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Sprite> &sprite, const glm::vec4 &color)
     {
         Renderer2D::DrawRectangle(transform, sprite->GetTexture(), sprite->GetTextureCoords(), color);
     }
 
-    void Renderer2D::DrawRectangle(const glm::mat4 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color)
+    void Renderer2D::DrawRectangle(const glm::mat3 &transform, const std::shared_ptr<Texture2D> &texture, const glm::vec2* textureCoords, const glm::vec4 &color)
     {
         if (s_RendererData.CurrentRendererObject != RendererObject2DType::TexturedRectangle && s_RendererData.CurrentRendererObject != RendererObject2DType::None)
         {
@@ -434,5 +412,4 @@ namespace Raccoon
     {
         return s_RendererData.Renderer2DStats;
     }
-
 }

@@ -14,8 +14,8 @@ namespace Raccoon
         static void SetViewport(uint32_t width, uint32_t height);
         static uint32_t GetMaxTextureUnits();
 
-        // static void Begin(OrthographicCamera &camera);
-        // static void End();
+        static void Begin(Camera2D &camera, const glm::mat3 &transform);
+        static void End();
 
         static void Submit(const std::shared_ptr<Shaders> &shaders, const std::shared_ptr<VertexArray> &vertexArray, const glm::mat4 &transform = glm::mat4(1.f));
 

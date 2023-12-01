@@ -21,7 +21,7 @@ namespace Raccoon
     void Scene::OnUpdate(const TimeStep &timestep)
     {
         OrthographicCamera* m_ActiveCamera = nullptr;
-        glm::mat4 m_Transform;
+        glm::mat3 m_Transform;
         {
             auto cameras = m_Registry.group<>(entt::get<OrthographicCameraComponent, Transform2DComponent>);
             for (entt::entity entity : cameras) 
