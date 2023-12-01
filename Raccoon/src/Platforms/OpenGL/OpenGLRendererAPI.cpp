@@ -13,6 +13,17 @@ namespace Raccoon
         // glEnable(GL_DEPTH_TEST);
     }
 
+    void OpenGLRendererAPI::SetBlending(bool value)
+    {
+        if (value == true)
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+        else 
+            glDisable(GL_BLEND);
+    }
+
     void OpenGLRendererAPI::Clear(const glm::vec4 &color)
     {
         glClearColor(color.x, color.y, color.z, color.w);

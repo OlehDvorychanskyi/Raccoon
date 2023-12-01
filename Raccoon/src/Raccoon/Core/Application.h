@@ -45,7 +45,9 @@ namespace Raccoon
 
         Window& GetWindow() { return *m_Window; }
 
-        void Close(WindowCloseEvent &event);
+        void Close();
+
+        void OnWindowClose(WindowCloseEvent &event);
         void OnWindowResize(WindowResizeEvent &event);
 
         void PushLayer(Layer *layer);

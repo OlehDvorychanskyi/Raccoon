@@ -32,16 +32,16 @@ namespace Raccoon
         return RendererCommand::GetMaxTextureUnits();
     }
 
-    void Renderer::Begin(OrthographicCamera &camera)
-    {
-        camera.Update();
-        m_Data->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
-    }
+    // void Renderer::Begin(OrthographicCamera &camera)
+    // {
+    //     camera.Update();
+    //     m_Data->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    // }
 
-    void Renderer::End()
-    {
+    // void Renderer::End()
+    // {
 
-    }
+    // }
 
     void Renderer::Submit(const std::shared_ptr<Shaders> &shaders, const std::shared_ptr<VertexArray> &vertexArray,  const glm::mat4 &transform)
     {

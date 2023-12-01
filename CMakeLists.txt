@@ -8,4 +8,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory(Raccoon)
-add_subdirectory(Sandbox)
+add_subdirectory(RaccoonEditor)
+# add_subdirectory(Sandbox)

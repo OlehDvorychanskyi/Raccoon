@@ -172,10 +172,33 @@ namespace Raccoon
         delete[] s_TexturedRectangleData.BeginVertex;
     }
 
-    void Renderer2D::Begin(OrthographicCamera &camera)
+    // void Renderer2D::Begin(OrthographicCamera &camera)
+    // {
+    //     camera.OnUpdate();
+    //     s_RendererData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+    //     // ----- TO DO: --------------------------------------
+    //         // Send ViewProjectionMatrix to the shaders once per scene here
+    //     // ---------------------------------------------------
+
+    //     Renderer2D::BeginBatch();
+    // }
+
+    // void Renderer2D::Begin(RendererCamera3D &camera)
+    // {
+    //     camera.OnUpdate();
+    //     s_RendererData.ViewProjectionMatrix = camera.GetProjection() * camera.GetView();
+    //     // ----- TO DO: --------------------------------------
+    //         // Send ViewProjectionMatrix to the shaders once per scene here
+    //     // ---------------------------------------------------
+
+    //     Renderer2D::BeginBatch();
+    // }
+
+    void Renderer2D::Begin(Camera &camera, const glm::mat4 &transform)
     {
-        camera.Update();
-        s_RendererData.ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+        camera.OnUpdate();
+        s_RendererData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
+
         // ----- TO DO: --------------------------------------
             // Send ViewProjectionMatrix to the shaders once per scene here
         // ---------------------------------------------------
@@ -186,7 +209,6 @@ namespace Raccoon
     void Renderer2D::End()
     {
         Renderer2D::EndBatch();
-        
     }
 
     void Renderer2D::BeginBatch()

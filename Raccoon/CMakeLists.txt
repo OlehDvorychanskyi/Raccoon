@@ -9,6 +9,9 @@ set(RaccoonSources
     src/Raccoon/Events/EventQueue.cpp
 
     src/Raccoon/ImGui/ImGuiLayer.cpp
+
+    src/Raccoon/Scene/Entity.cpp
+    src/Raccoon/Scene/Scene.cpp
     
     src/Raccoon/Renderer/RendererContext.cpp
     src/Raccoon/Renderer/IndexBuffer.cpp
@@ -25,6 +28,9 @@ set(RaccoonSources
     src/Raccoon/Renderer/Renderer2D.cpp
     src/Raccoon/Renderer/Sprite.cpp
     src/Raccoon/Renderer/ParticleSystem.cpp
+    src/Raccoon/Renderer/FrameBuffer.cpp
+    src/Raccoon/Renderer/Cameras.cpp
+    src/Raccoon/Renderer/Camera2DController.cpp
 
     src/Raccoon/Math/Random.cpp
 )
@@ -42,6 +48,7 @@ set(OpenGLSources
     src/Platforms/OpenGL/OpenGLRendererAPI.cpp
     src/Platforms/OpenGL/OpenGLShaders.cpp
     src/Platforms/OpenGL/OpenGLTexture2D.cpp
+    src/Platforms/OpenGL/OpenGLFrameBuffer.cpp
 )
 
 add_subdirectory(deps/spdlog)
@@ -55,6 +62,7 @@ add_library(${PROJECT_NAME} ${RaccoonSources} ${WindowsSources} ${OpenGLSources}
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/entt/include
 )
 
 target_precompile_headers(${PROJECT_NAME} 

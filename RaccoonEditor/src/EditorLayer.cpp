@@ -1,21 +1,34 @@
-#include "TestLayer.h"
+#include "EditorLayer.h"
 #include <imgui.h>
 
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
 #include <Raccoon/Renderer/Renderer2D.h>
+#include <Raccoon/Renderer/RendererCommand.h>
+
+#include <Raccoon/Scene/Components.h>
 
 
-TestLayer::TestLayer()
-    : m_CameraController(Raccoon::Application::Get().GetWindow().GetAspectRatio())
+void DisableBlendingCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd) 
+{
+    Raccoon::RendererCommand::SetBlending(false);
+}
+
+void EnableBlendingCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd) 
+{
+    Raccoon::RendererCommand::SetBlending(true);
+}
+
+EditorLayer::EditorLayer()
+    // : m_CameraController(Raccoon::Application::Get().GetWindow().GetAspectRatio())
 {
     m_GrassTexture = Raccoon::Texture2D::Create("assets/textures/Grass.png");
     m_WaterTexture = Raccoon::Texture2D::Create("assets/textures/Water.png");
     m_ChapelTexture = Raccoon::Texture2D::Create("assets/textures/Chapel.png");
 }
 
-void TestLayer::OnAttach() 
+void EditorLayer::OnAttach() 
 {   
     m_Sprites = Raccoon::Texture2D::Create("assets/textures/GrassSprite.png");
 
@@ -41,74 +54,66 @@ void TestLayer::OnAttach()
     spec.Width = 1280;
     spec.Height = 720;
     m_FrameBuffer = Raccoon::FrameBuffer::Create(spec);
+
+    auto entity1 = m_ActiveScene.CreateEntity();
+    entity1.AddComponent<Raccoon::SpriteRendererComponent>();
+    entity1.GetComponent<Raccoon::SpriteRendererComponent>().Texture = m_ChapelTexture;
+    entity1.GetComponent<Raccoon::ZComponent>().ZIndex = 1;
+
+    auto entity2 = m_ActiveScene.CreateEntity();
+    entity2.AddComponent<Raccoon::ColorRendererComponent>();
+    entity2.GetComponent<Raccoon::ColorRendererComponent>().Color = glm::vec4(0.f, 0.5f, 1.f, 1.f);
+    entity2.GetComponent<Raccoon::Transform2DComponent>().Translation = glm::vec2(0.5f, 0.5f);
+
+    auto entity3 = m_ActiveScene.CreateEntity();
+    entity3.AddComponent<Raccoon::OrthographicCameraComponent>();
+    entity3.GetComponent<Raccoon::OrthographicCameraComponent>().Camera.SetAspectRatio(Raccoon::Application::Get().GetWindow().GetAspectRatio());
+    // entity3.GetComponent<Raccoon::OrthographicCameraComponent>().Camera.FixedAspectRatio = true;
+
+
+    // m_Camera = std::make_shared<Raccoon::Camera2D>();
+    // m_Camera->SetAspectRatio(1280, 720);
+
+    // m_Controller = std::make_shared<Raccoon::Camera2DController>(m_Camera);
+
+    // m_Camera.SetAspectRatio();
 }   
 
-void TestLayer::OnDetach()
+void EditorLayer::OnDetach()
 {
 
 }
 
-void TestLayer::OnEvent(Raccoon::Event &event)
+void EditorLayer::OnEvent(Raccoon::Event &event)
 {
-    m_CameraController.OnEvent(event);
+    // m_CameraController.OnEvent(event);
+    // m_Controller->OnEvent(event);
 }
 
-void TestLayer::OnUpdate(const Raccoon::TimeStep &timestep)
+void EditorLayer::OnUpdate(const Raccoon::TimeStep &timestep)
 {
-    m_CameraController.OnUpdate(timestep);
-    RE_CORE_INFO("Camera position {0}", m_CameraController.GetCamera().GetPosition().y);
+    // m_CameraController.OnUpdate(timestep);
+    // m_Controller->OnUpdate(timestep);
 
     m_ParticleSystem.OnUpdate(timestep);
     m_ParticleSystem.Emit(m_Particle);
 
-    // m_FrameBuffer->Bind();
+    m_FrameBuffer->Bind();
     Raccoon::RendererCommand::Clear({0.4f, 0.4f, 0.4f, 1.f});
     Raccoon::Renderer2D::ResetStats();
-    Raccoon::Renderer2D::Begin(m_CameraController.GetCamera());
-    Raccoon::Renderer2D::DrawRectangle({0.f, 0.f}, {2.f, 2.f}, m_GrassTexture);
-    Raccoon::Renderer2D::DrawRectangle({0.f, 0.f}, {1.f, 1.f}, m_ChapelTexture);
-    Raccoon::Renderer2D::DrawRectangle({5.f, 0.f}, {1.f, 1.f}, m_Grass);
-    Raccoon::Renderer2D::DrawRectangle({7.f, 0.f}, {1.f, 1.f}, m_Water);
-    Raccoon::Renderer2D::DrawParticles(m_ParticleSystem);
-    
-    Raccoon::Renderer2D::End();
+    // Raccoon::Renderer2D::Begin(m_CameraController.GetCamera());
+    // Raccoon::Renderer2D::Begin(*m_Controller->GetCamera());
+    m_ActiveScene.OnUpdate(timestep);
+    // Raccoon::Renderer2D::End();
+
+    m_FrameBuffer->Unbind();
     RE_INFO("DrawCalls: {0}", Raccoon::Renderer2D::GetStats().DrawCalls);
-
-    // m_FrameBuffer->Unbind();
-
-    // Raccoon::Renderer2D::DrawRectangle({1.f, 1.f}, {1.f, 1.f}, glm::vec4(1.f, 1.f, 1.f, 1.f));
-
-    // for (int i = 0; i < 1000; ++i) 
-    // {
-    //     for (int j = 0; j < 1000; ++j) 
-    //     {
-    //         float x = j * 1.f;
-    //         float y = i * 1.f;
-    //         // glm::vec4 color = (i + j) % 2 == 0 ? glm::vec4(1.f, 1.f, 1.f, 1.f) : glm::vec4(0.f, 0.f, 0.f, 1.f); 
-            
-    //         // Raccoon::Renderer2D::DrawRectangle({x, y}, {1.f, 1.f}, color);
-    //         Raccoon::Renderer2D::DrawRectangle({x, y}, {1.f, 1.f}, (i + j) % 2 == 0 ? m_WaterTexture : m_GrassTexture);
-    //     }
-    // }
 }
 
-void TestLayer::OnImGuiRender()
+
+
+void EditorLayer::OnImGuiRender()
 {
-    // ImGui::Begin("Texture Settings");
-    // static const char* items[] = { "Smooth", "Pixelated" };
-    // static int currentItem = 0;
-
-    // if (ImGui::Combo("Texutre Quality", &currentItem, items, IM_ARRAYSIZE(items)))
-    // {
-    //     if (items[currentItem] == "Smooth")
-    //         m_Texture->SetQuality(Raccoon::TextureQuality::Smooth);       
-    //     else if (items[currentItem] == "Pixelated")
-    //         m_Texture->SetQuality(Raccoon::TextureQuality::Pixelated);       
-    //     else
-    //         RE_CORE_ASSERT(false, "Unknown texutre quality");
-    // }
-    // ImGui::End();
-
     static bool p_open = true;
 
     static bool opt_fullscreen = true;
@@ -133,10 +138,7 @@ void TestLayer::OnImGuiRender()
     {
         dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
     }
-
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        window_flags |= ImGuiWindowFlags_NoBackground;
-
+        
     if (!opt_padding)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::Begin("DockSpace Demo", &p_open, window_flags);
@@ -146,7 +148,6 @@ void TestLayer::OnImGuiRender()
     if (opt_fullscreen)
         ImGui::PopStyleVar(2);
 
-    // Submit the DockSpace
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
     {
@@ -166,9 +167,25 @@ void TestLayer::OnImGuiRender()
         ImGui::EndMenuBar();
     }
 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("Viewport");
-        
+    ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+    if (m_ViewportSize != *((glm::vec2*)&viewportSize))
+    {
+        m_ViewportSize.x = viewportSize.x;
+        m_ViewportSize.y = viewportSize.y;
+        m_FrameBuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+    }
+    uint32_t textureID = m_FrameBuffer->GetColorAttachment();
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    drawList->AddCallback(DisableBlendingCallback, nullptr);
+    ImGui::Image((void*)textureID, ImVec2(m_ViewportSize.x, m_ViewportSize.y), ImVec2(0, 1), ImVec2(1, 0));
+    drawList->AddCallback(EnableBlendingCallback, nullptr);
+
     ImGui::End();
+    ImGui::PopStyleVar();
     
     ImGui::End();
 }

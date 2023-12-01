@@ -5,6 +5,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <Raccoon/Core/Application.h>
+#include <Raccoon/Renderer/RendererCommand.h>
 
 #include <glfw/glfw3.h>
 
@@ -18,7 +19,7 @@ namespace Raccoon
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+    
         ImGui::StyleColorsDark();
 
         GLFWwindow *window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
@@ -58,7 +59,7 @@ namespace Raccoon
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+        
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			GLFWwindow* backup_current_context = glfwGetCurrentContext();

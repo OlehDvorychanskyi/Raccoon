@@ -4,6 +4,7 @@
 #include <Raccoon/Renderer/Texture2D.h>
 #include <Raccoon/Renderer/Sprite.h>
 #include <Raccoon/Renderer/ParticleSystem.h>
+#include <Raccoon/Renderer/Cameras.h>
 
 #include <glm/glm.hpp>
 #include <memory.h>
@@ -16,7 +17,9 @@ namespace Raccoon
         static void Init();
         static void Shutdown();
 
-        static void Begin(OrthographicCamera &camera);
+        // static void Begin(OrthographicCamera &camera);
+        // static void Begin(RendererCamera3D &camera);
+        static void Begin(Camera &camera, const glm::mat4 &transform);
         static void End();
         
         // ----- TO DO: --------------------------------------

@@ -42,10 +42,9 @@ namespace Raccoon
             Timer timer("Main Loop");
             deltaTime.Update();
             DispatchEvent();
-
+            
             for (Layer *layer : m_Layers)
                 layer->OnUpdate(deltaTime);
-            
 
             m_ImGuiLayer->Begin();
             for (Layer *layer : m_Layers)
@@ -67,31 +66,31 @@ namespace Raccoon
         while ((event = m_Events.GetFront()) != nullptr) 
         {   
             EventDispatcher dispatcher(*event);
-            dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNCTION(Close));
+            dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNCTION(OnWindowClose));
             dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FUNCTION(OnWindowResize));
 
             for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
             {
                 if (!(event->Handled)) 
                 {
-                    #ifdef RE_DEBUG
-                        RE_CORE_INFO((*it)->GetDebugName());
-                    #endif
                     (*it)->OnEvent(*event);
                 }
             }
         }
     }
 
-    void Application::Close(WindowCloseEvent &event)
+    void Application::Close()
     {
-        RE_CORE_INFO("Window closed");
+        m_Running = false;
+    }
+
+    void Application::OnWindowClose(WindowCloseEvent &event)
+    {
         m_Running = false;
     }
 
     void Application::OnWindowResize(WindowResizeEvent &event)
     {
-        RE_CORE_INFO("Window resized");
         auto type = event.GetEventType();
         Renderer::SetViewport(event.GetWidth(), event.GetHeight());
     }

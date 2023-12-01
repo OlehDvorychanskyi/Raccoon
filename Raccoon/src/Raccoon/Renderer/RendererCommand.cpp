@@ -25,6 +25,11 @@ namespace Raccoon
         m_RendererAPI->Clear(color);    
     }
 
+    void RendererCommand::SetBlending(bool value) 
+    {
+        m_RendererAPI->SetBlending(value);
+    }
+
     void RendererCommand::DrawIndexed(const std::shared_ptr<VertexArray> &vertexArray)
     {
         m_RendererAPI->DrawIndexed(vertexArray);
