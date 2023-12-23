@@ -50,18 +50,23 @@ namespace Raccoon
         return 0;
     }
 
-    OpenGLTexture2D::OpenGLTexture2D(const std::string &filepath)
+    OpenGLTexture2D::OpenGLTexture2D(const FilePath &filepath)
         : m_Quality {TextureQuality::Pixelated}
     {
         unsigned char *data = LoadTextureFromFile(filepath); 
 
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_Id);
-        glTextureStorage2D(m_Id, 1, ToGLInternalFormat(m_Format), m_Size.x, m_Size.y);        
-        glTextureSubImage2D(m_Id, 0, 0, 0, m_Size.x, m_Size.y, ToGLDataFormat(m_Format), GL_UNSIGNED_BYTE, data);
+        if (data)
+        {
+            m_Loaded = true;
 
-        ApplyQuality();
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_Id);
+            glTextureStorage2D(m_Id, 1, ToGLInternalFormat(m_Format), m_Size.x, m_Size.y);        
+            glTextureSubImage2D(m_Id, 0, 0, 0, m_Size.x, m_Size.y, ToGLDataFormat(m_Format), GL_UNSIGNED_BYTE, data);
 
-        stbi_image_free(data);
+            ApplyQuality();
+
+            stbi_image_free(data);
+        }
     }
 
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, TextureFormat internalFormat)
@@ -77,7 +82,7 @@ namespace Raccoon
         glDeleteTextures(1, &m_Id);
     }
 
-    void OpenGLTexture2D::Update(const std::string &filepath, uint32_t offsetX, uint32_t offsetY)
+    void OpenGLTexture2D::Update(const FilePath &filepath, uint32_t offsetX, uint32_t offsetY)
     {
         unsigned char *data = LoadTextureFromFile(filepath); 
         glBindTexture(GL_TEXTURE_2D, m_Id);
@@ -85,12 +90,14 @@ namespace Raccoon
         stbi_image_free(data);
     }
 
-    unsigned char* OpenGLTexture2D::LoadTextureFromFile(const std::string &filepath)
+    unsigned char* OpenGLTexture2D::LoadTextureFromFile(const FilePath &filepath)
     {
         int32_t NRChannels, x, y;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char *data = stbi_load(filepath.c_str(), &x, &y, &NRChannels, 0);
+        unsigned char *data = stbi_load(filepath.GetRelativePath().c_str(), &x, &y, &NRChannels, 0);
         RE_CORE_ASSERT(data, "Fail to load image");
+
+        m_Path = filepath;
 
         // RE_CORE_ASSERT((x <= m_Size.x && y <= m_Size.y), "Couldn't update texture: image size bigger then size of texture");
         m_Size.x = x;

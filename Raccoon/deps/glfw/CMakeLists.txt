@@ -62,3 +62,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${CompilerDefinitions})
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Os)
+    target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--no-keep-memory")
+endif()

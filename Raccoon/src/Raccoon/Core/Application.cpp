@@ -39,19 +39,28 @@ namespace Raccoon
         TimeStep deltaTime;
         while (m_Running)
         {
-            Timer timer("Main Loop");
+            #ifndef RE_OPTIMIZE
+                Timer timer("Main Loop");
+            #endif
+            
             deltaTime.Update();
             DispatchEvent();
             
             for (Layer *layer : m_Layers)
                 layer->OnUpdate(deltaTime);
 
-            m_ImGuiLayer->Begin();
-            for (Layer *layer : m_Layers)
-                layer->OnImGuiRender();
-            m_ImGuiLayer->End();
+            #ifndef RE_NO_IMGUI
+                m_ImGuiLayer->Begin();
+                for (Layer *layer : m_Layers)
+                    layer->OnImGuiRender();
+                m_ImGuiLayer->End();
+            #endif 
 
             m_Window->OnUpdate();
+
+            #ifndef RE_OPTIMIZE
+                m_FrameTime = timer.GetTime();
+            #endif
         }
     }
 

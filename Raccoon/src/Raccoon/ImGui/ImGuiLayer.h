@@ -16,6 +16,8 @@ namespace Raccoon
 
         OVERRIDE_LAYER_DEBUG("ImGui")
     private:
+        void SetDarkTheme();
+    private:
         // bool m_BlockEvents = true;
         bool m_BlockEvents = false;
     };

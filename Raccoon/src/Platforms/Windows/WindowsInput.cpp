@@ -5,18 +5,28 @@
 
 namespace Raccoon
 {   
+    bool Input::m_BlockInputs = false;
+
     bool Input::IsKeyPressed(KeyCode keycode)
     {
-        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-        auto status = glfwGetKey(window, static_cast<int32_t>(keycode));
-        return status == GLFW_PRESS;
+        if (!m_BlockInputs)
+        {
+            auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+            auto status = glfwGetKey(window, static_cast<int32_t>(keycode));
+            return status == GLFW_PRESS;
+        }
+        return false;
     }
 
     bool Input::IsMouseButtonPressed(MouseCode button)
     {
-        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-        auto status = glfwGetMouseButton(window, static_cast<int32_t>(button));
-        return status == GLFW_PRESS;
+        if (!m_BlockInputs)
+        {
+            auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+            auto status = glfwGetMouseButton(window, static_cast<int32_t>(button));
+            return status == GLFW_PRESS;
+        }
+        return false;
     }
 
     std::pair<float, float> Input::GetCursorPosition()
@@ -26,6 +36,7 @@ namespace Raccoon
         glfwGetCursorPos(window, &xPos, &yPos);
         return {float(xPos), float(yPos)};
     }
+
 
     float Input::GetCursorX()
     {
@@ -38,4 +49,24 @@ namespace Raccoon
         auto[x, y] = GetCursorPosition();
         return y;
     }   
+
+    glm::vec2 Input::GetCursorGlobalPosition()
+    {
+        auto[x, y] = Input::GetCursorPosition();
+        auto windowPosition = Input::GetWindowPosition();
+        return {windowPosition.x + x, windowPosition.y + y};
+    }
+
+    glm::vec2 Input::GetWindowPosition()
+    {
+        auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+        int x, y;
+        glfwGetWindowPos(window, &x, &y);
+        return {(float)x, (float)y};
+    }
+
+    void Input::BlockInputs(bool value)
+    {
+        m_BlockInputs = value;
+    }
 }

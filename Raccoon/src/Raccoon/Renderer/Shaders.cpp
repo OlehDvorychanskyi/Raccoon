@@ -6,7 +6,7 @@
 namespace Raccoon
 {
     
-    std::shared_ptr<Shaders> Shaders::Create(const std::string &vertexFilePath, const std::string &fragmentFilePath)
+    std::shared_ptr<Shaders> Shaders::Create(const FilePath &vertexFilePath, const FilePath &fragmentFilePath)
     {
         switch (Renderer::GetAPI())
 		{

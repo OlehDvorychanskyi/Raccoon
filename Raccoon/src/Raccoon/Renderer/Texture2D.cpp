@@ -5,7 +5,7 @@
 
 namespace Raccoon
 {
-    std::shared_ptr<Texture2D> Texture2D::Create(const std::string &filepath)
+    std::shared_ptr<Texture2D> Texture2D::Create(const FilePath &filepath)
     {
         switch (Renderer::GetAPI())
 		{

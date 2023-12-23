@@ -15,7 +15,7 @@ namespace Raccoon
             Fragment
         };
     public:
-        OpenGLShaders(const std::string &vertexFilePath, const std::string &fragmentFilePath);
+        OpenGLShaders(const FilePath &vertexFilePath, const FilePath &fragmentFilePath);
 
         virtual void Bind() const override;
         virtual void Unbind() const override;
@@ -37,14 +37,14 @@ namespace Raccoon
         virtual void SetMat3(const std::string &name, const glm::mat3 &value) override;
         virtual void SetMat4(const std::string &name, const glm::mat4 &value) override;
     private:
-        uint32_t CompileShader(const std::string &filePath, ShaderType shaderType);
-        void CheckCompileErrors(uint32_t shader, const std::string &filePath);
+        uint32_t CompileShader(const FilePath &filePath, ShaderType shaderType);
+        void CheckCompileErrors(uint32_t shader, const FilePath &filePath);
         void CheckLinkErrors();
         void CreateShaderProgram(uint32_t vertex, uint32_t fragment);
         void ExtractUniforms(ShaderType type);
     private:
         uint32_t m_Id;
-        std::unordered_map<ShaderType, std::string> m_FilePath;
+        std::unordered_map<ShaderType, FilePath> m_FilePath;
         std::unordered_map<ShaderType, std::string> m_SourceCode;
         std::unordered_map<std::string, uint32_t> m_Uniforms;
     };

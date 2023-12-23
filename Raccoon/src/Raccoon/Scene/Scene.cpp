@@ -18,83 +18,317 @@ namespace Raccoon
 
     }
 
-    void Scene::OnUpdate(const TimeStep &timestep)
+    std::size_t Scene::GetEntityOrder(entt::entity entity) const 
     {
-        OrthographicCamera* m_ActiveCamera = nullptr;
-        glm::mat3 m_Transform;
+        return m_Registry.GetEntityIndex(entity);
+    }
+
+    // void Scene::SwapEntities(entt::entity entity1, entt::entity entity2)
+    // {
+    //     std::size_t order1 = GetEntityOrder(entity1);
+    //     std::size_t order2 = GetEntityOrder(entity2);
+
+    //     if (order1 != std::numeric_limits<std::size_t>::max() && order2 != std::numeric_limits<std::size_t>::max()) 
+    //     {
+    //         m_Registry.sort<entt::entity>([this, order1, order2, entity1, entity2](entt::entity a, entt::entity b) 
+    //         {
+    //             // if ((a == entity1 && b == entity2) || (a == entity2 && b == entity1))
+    //             //     return order1 < order2;
+    //             return false;
+    //         });
+    //     }
+    // }
+
+    void Scene::ChangeEntityPosition(entt::entity entity, std::size_t newPosition) 
+    {
+        m_Registry.ChangeEntityPosition(entity, newPosition);
+    }
+
+    // void Scene::OnUpdate(const TimeStep &timestep)
+    // {
+    //     // Update Native Scripts
+    //     {
+    //         auto scripts = m_Registry.GetRegistry().group<>(entt::get<NativeScriptComponent, Transform2DComponent>);
+    //         for (entt::entity entity : scripts) 
+    //         {
+    //             auto& script = m_Registry.GetRegistry().get<NativeScriptComponent>(entity);
+    //             if (script.Script == nullptr)
+    //             {
+    //                 script.Script = script.CreateScript();
+    //                 script.Script->m_Entity = Entity{entity, this};
+    //                 script.Script->OnCreate();
+    //             }
+    //             script.Script->OnUpdate(timestep);
+    //         }
+    //     }
+
+    //     // Update
+    //     {
+    //         auto entityControllers = m_Registry.GetRegistry().group<>(entt::get<EntityControllerComponent>);
+    //         for (entt::entity entity : entityControllers) 
+    //         {
+    //             auto& controller = m_Registry.GetRegistry().get<EntityControllerComponent>(entity);
+    //             controller.OnUpdate(timestep);
+    //         }
+    //     }
+
+    //     {
+    //         auto transforms = m_Registry.GetRegistry().group<>(entt::get<Transform2DComponent>);
+    //         for (entt::entity entity : transforms) 
+    //         {
+    //             auto& transform = m_Registry.GetRegistry().get<Transform2DComponent>(entity);
+    //             transform.OnUpdate();
+    //         }
+    //     }
+        
+    //     // Runtime Render2D
+    //     // if (m_PrimaryCamera.Camera)
+    //     // {
+    //     //     RenderScene(*m_PrimaryCamera.Camera, *m_PrimaryCamera.Transform); 
+    //     // }
+
+    //     RenderScene(m_EditorCamera);
+    // }   
+
+    void Scene::OnEditorBegin()
+    {
+
+    }
+
+    void Scene::OnRuntimeBegin()
+    {
+        m_Running = true;
+
         {
-            auto cameras = m_Registry.group<>(entt::get<OrthographicCameraComponent, Transform2DComponent>);
-            for (entt::entity entity : cameras) 
+            auto scripts = m_Registry.GetRegistry().group<>(entt::get<NativeScriptComponent>);
+            for (entt::entity entity : scripts) 
             {
-                auto [camera, transform] = m_Registry.get<OrthographicCameraComponent, Transform2DComponent>(entity);
-                if (camera.ActiveCamera)
+                auto& script = m_Registry.GetRegistry().get<NativeScriptComponent>(entity);
+                if (script.Script == nullptr)
                 {
-                    m_ActiveCamera = &camera.Camera;
-                    m_Transform = transform.GetTransform();
+                    script.Script = script.CreateScript();
+                    script.Script->m_Entity = Entity{entity, this};
+                    script.Script->OnCreate();
                 }
             }
         }
+    }
 
-        // Renderer2D
-        if (m_ActiveCamera)
+    void Scene::OnEditorEnd()
+    {
+        
+    }
+    
+    void Scene::OnRuntimeEnd()
+    {
+        m_Running = false;
+    }
+
+    void Scene::OnEditorUpdate(const TimeStep &timestep, EditorCamera &camera)
+    {
+        // Temp
         {
-            Renderer2D::Begin(*m_ActiveCamera, m_Transform);
-
-            auto drawable = m_Registry.group<>(entt::get<ZComponent>);
-
-            drawable.sort([this](entt::entity a, entt::entity b) 
+            auto transforms = m_Registry.GetRegistry().group<>(entt::get<Transform2DComponent>);
+            for (entt::entity entity : transforms) 
             {
-                return m_Registry.get<ZComponent>(a).ZIndex < m_Registry.get<ZComponent>(b).ZIndex;
-            });
-
-            for (entt::entity entity : drawable) 
-            {
-                if (m_Registry.all_of<SpriteRendererComponent, Transform2DComponent>(entity))
-                {
-                    auto [sprite, transform] = m_Registry.get<SpriteRendererComponent, Transform2DComponent>(entity);
-                    Renderer2D::DrawRectangle(transform.GetTransform(), sprite.Texture);
-                }
-                else if (m_Registry.all_of<ColorRendererComponent, Transform2DComponent>(entity))
-                {
-                    auto [sprite, transform] = m_Registry.get<ColorRendererComponent, Transform2DComponent>(entity);
-                    Renderer2D::DrawRectangle(transform.GetTransform(), sprite.Color);
-                }
+                auto& transform = m_Registry.GetRegistry().get<Transform2DComponent>(entity);
+                transform.OnUpdate();
             }
-
-            Renderer2D::End();
         }
-    }   
+
+        RenderScene(camera);
+    }
+
+    void Scene::OnRuntimeUpdate(const TimeStep &timestep)
+    {
+        // Update Native Scripts
+        {
+            auto scripts = m_Registry.GetRegistry().group<>(entt::get<NativeScriptComponent, Transform2DComponent>);
+            for (entt::entity entity : scripts) 
+            {
+                auto& script = m_Registry.GetRegistry().get<NativeScriptComponent>(entity);
+                if (script.Script == nullptr)
+                {
+                    script.Script = script.CreateScript();
+                    script.Script->m_Entity = Entity{entity, this};
+                    script.Script->OnCreate();
+                }
+                script.Script->OnUpdate(timestep);
+            }
+        }
+
+        // Update
+        {
+            auto entityControllers = m_Registry.GetRegistry().group<>(entt::get<EntityControllerComponent>);
+            for (entt::entity entity : entityControllers) 
+            {
+                auto& controller = m_Registry.GetRegistry().get<EntityControllerComponent>(entity);
+                controller.OnUpdate(timestep);
+            }
+        }
+
+        {
+            auto transforms = m_Registry.GetRegistry().group<>(entt::get<Transform2DComponent>);
+            for (entt::entity entity : transforms) 
+            {
+                auto& transform = m_Registry.GetRegistry().get<Transform2DComponent>(entity);
+                transform.OnUpdate();
+            }
+        }
+
+        // Runtime Render2D
+        if (m_PrimaryCamera.Camera)
+        {
+            RenderScene(*m_PrimaryCamera.Camera, *m_PrimaryCamera.Transform); 
+        }
+    }
+
+    void Scene::RenderScene(EditorCamera &camera)
+    {
+        Renderer2D::Begin(camera);
+        RenderScene();
+        Renderer2D::End();
+    }
+
+    void Scene::RenderScene(Camera2D &camera, const glm::mat3 &transform)
+    {
+        Renderer2D::Begin(camera, transform);
+        RenderScene();
+        Renderer2D::End();
+    }
+
+    void Scene::RenderScene()
+    {
+        auto drawable = m_Registry.GetRegistry().group<>(entt::get<ZComponent>);
+
+        drawable.sort([this](entt::entity a, entt::entity b) 
+        {
+            uint32_t zIndexA = m_Registry.GetRegistry().get<ZComponent>(a).ZIndex;
+            uint32_t zIndexB = m_Registry.GetRegistry().get<ZComponent>(b).ZIndex;
+
+            // Compare by ZIndex first
+            if (zIndexA != zIndexB) 
+                return zIndexA < zIndexB;
+
+            // If ZIndex is the same, compare by entity order
+            return GetEntityOrder(a) < GetEntityOrder(b);
+        });
+
+        for (entt::entity entity : drawable) 
+        {
+            if (m_Registry.GetRegistry().all_of<SpriteRendererComponent>(entity))
+            {
+                auto [sprite, transform] = m_Registry.GetRegistry().get<SpriteRendererComponent, Transform2DComponent>(entity);
+                Renderer2D::DrawRectangle(transform.GetTransform(), sprite.Texture, sprite.Color);
+            }
+            else if (m_Registry.GetRegistry().all_of<ColorRendererComponent>(entity))
+            {
+                auto [sprite, transform] = m_Registry.GetRegistry().get<ColorRendererComponent, Transform2DComponent>(entity);
+                Renderer2D::DrawRectangle(transform.GetTransform(), sprite.Color);
+            }
+        }
+    }
+
+    void Scene::OnViewportResize(uint32_t width, uint32_t height)
+    {
+        if (m_ViewportWidth == width && m_ViewportHeight == height)
+            return;
+        
+        m_ViewportWidth = width;
+        m_ViewportHeight = height;
+
+        auto cameras = m_Registry.GetRegistry().group<>(entt::get<OrthographicCameraComponent>);
+        for (entt::entity entity : cameras)
+        {
+            auto& cameraComponent = cameras.get<OrthographicCameraComponent>(entity);
+			if (!cameraComponent.FixedAspectRatio)
+				cameraComponent.Camera.SetAspectRatio(width, height);
+        }
+    }
         
     Entity Scene::CreateEntity(const std::string& name)
     {
-        Entity entity {m_Registry.create(), this};
+        Entity entity {m_Registry.CreateEntity(), this};
         entity.AddComponent<Transform2DComponent>();
-        entity.AddComponent<NameComponent>();
+        entity.AddComponent<NameComponent>(name);
 
         return entity;
     }
 
-    template<typename T>
-    void Scene::OnComponentAdded(Entity entity, T& component)
+    void Scene::DestroyEntity(Entity entity)
     {
-        RE_CORE_ASSERT(sizeof(T) != 0);
+        if (entity.HasComponent<OrthographicCameraComponent>())
+            if (HasPrimaryCamera()) 
+                if (IsPrimaryCamera(&entity.GetComponent<OrthographicCameraComponent>().Camera))
+                    SetPrimaryCamera(nullptr, nullptr);
+        
+        m_Registry.DestroyEntity(entity);
     }
 
+    void Scene::SetPrimaryCamera(Camera2D* camera, glm::mat3 *transform)
+    {       
+        m_PrimaryCamera.Camera = camera;
+        m_PrimaryCamera.Transform = transform;
+    }
+
+    template<>
+    void Scene::OnComponentAdded<Transform2DComponent>(Entity entity, Transform2DComponent& component)
+    {
+        
+    }
+    
+    template<>
+    void Scene::OnComponentAdded<NameComponent>(Entity entity, NameComponent& component)
+    {
+        
+    }
+    
+    template<>
+    void Scene::OnComponentAdded<ZComponent>(Entity entity, ZComponent& component)
+    {
+        
+    }
+    
     template<>
     void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
     {
-        m_Registry.emplace<ZComponent>(entity);
+        if (!entity.HasComponent<ZComponent>())
+            entity.AddComponent<ZComponent>();
     }
-
+    
     template<>
     void Scene::OnComponentAdded<ColorRendererComponent>(Entity entity, ColorRendererComponent& component)
     {
-        m_Registry.emplace<ZComponent>(entity);
+        if (!entity.HasComponent<ZComponent>())
+            entity.AddComponent<ZComponent>();
     }
-
+        
     template<>
     void Scene::OnComponentAdded<OrthographicCameraComponent>(Entity entity, OrthographicCameraComponent& component)
     {
+        if (!HasPrimaryCamera())
+        {
+            m_PrimaryCamera.Camera = &component.Camera;
+            m_PrimaryCamera.Transform = &entity.GetComponent<Transform2DComponent>().GetTransform();
+        }
+    }
+
+    template<>
+    void Scene::OnComponentAdded<EntityControllerComponent>(Entity entity, EntityControllerComponent& component)
+    {
+        component.SetTransformComponent(m_Registry.GetRegistry().get<Transform2DComponent>(entity));
+    }
+
+    template<>
+    void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
+    {
         
+    }
+
+    template<>
+    void Scene::OnComponentRemoved<OrthographicCameraComponent>(OrthographicCameraComponent& component)
+    {
+        if (IsPrimaryCamera(&component.Camera))
+            SetPrimaryCamera(nullptr, nullptr);
     }
 }

@@ -18,3 +18,8 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/backends
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../glfw/include
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(imgui PRIVATE -Os)
+    target_link_options(imgui PRIVATE "-Wl,--no-keep-memory")
+endif()

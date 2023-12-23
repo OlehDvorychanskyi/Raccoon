@@ -70,3 +70,8 @@ add_library(glm_static STATIC ${ROOT_TEXT} ${ROOT_MD} ${ROOT_NAT}
 # endif()
 
 target_compile_definitions(glm_static PUBLIC GLM_ENABLE_EXPERIMENTAL)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(glm_static PRIVATE -Os)
+    target_link_options(glm_static PRIVATE "-Wl,--no-keep-memory")
+endif()

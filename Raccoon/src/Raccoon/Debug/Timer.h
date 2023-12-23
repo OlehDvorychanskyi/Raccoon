@@ -15,7 +15,7 @@ namespace Raccoon
     class Timer
     {
     public:
-        Timer(const std::string &name, TimeUnit timeunit = TimeUnit::Microseconds) 
+        Timer(const std::string &name, TimeUnit timeunit = TimeUnit::Milliseconds) 
             : m_Timer{std::chrono::high_resolution_clock::now()}, m_BlockName{name}, m_TimeUnit{timeunit} {}
         
         ~Timer() 
@@ -25,22 +25,49 @@ namespace Raccoon
                 case TimeUnit::Seconds:
                 {
                     auto time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_Timer);
-                    RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
+                    // RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
                     break;
                 }
                 case TimeUnit::Milliseconds:
                 {
                     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_Timer);
-                    RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
+                    // RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
                     break;
                 }
                 case TimeUnit::Microseconds:
                 {
                     auto time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Timer);
-                    RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
+                    // RE_CORE_INFO("{0} takes {1} {2}", m_BlockName, time.count(), TimeUnitToString());
                     break;
                 }
             }
+        }
+
+        float GetTime() const 
+        {
+            float Time = 0.f;
+            switch (m_TimeUnit)
+            {
+                case TimeUnit::Seconds:
+                {
+                    auto time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - m_Timer);
+                    Time = time.count();
+                    break;
+                }
+                case TimeUnit::Milliseconds:
+                {
+                    auto time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - m_Timer);
+                    Time = time.count();
+                    break;
+                }
+                case TimeUnit::Microseconds:
+                {
+                    auto time = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - m_Timer);
+                    Time = time.count();
+                    break;
+                }
+            }
+            return Time;
         }
 
     private:

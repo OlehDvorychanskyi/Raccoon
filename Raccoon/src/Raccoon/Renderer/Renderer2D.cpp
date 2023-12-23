@@ -135,7 +135,6 @@ namespace Raccoon
         s_ColoredRectangleData.VertexArray->SetIndexBuffer(RectangleIndexBuffer);
 
         s_ColoredRectangleData.Shaders = Shaders::Create("assets/shaders/ColoredRectangle.vs", "assets/shaders/ColoredRectangle.fs");
-
     // ------------------------------------------------------------------------------------------------------------------------------------
 
     // ----------------------- TEXTURED RECTANGLE -----------------------------------------------------------------------------------------
@@ -158,7 +157,7 @@ namespace Raccoon
         s_TexturedRectangleData.TextureUnits.resize(s_RendererData.MaxTextureUnits);
 
         s_TexturedRectangleData.DefaultTexture = Texture2D::Create(1, 1);
-        uint32_t data = 0; // dark texture
+        uint32_t data = 0xffffffff; // white texture
         s_TexturedRectangleData.DefaultTexture->SetData(&data, sizeof(uint32_t));
 
         s_TexturedRectangleData.TextureUnits[0] = s_TexturedRectangleData.DefaultTexture;
@@ -176,6 +175,18 @@ namespace Raccoon
     {
         camera.OnUpdate();
         s_RendererData.ViewProjectionMatrix = camera.GetProjection() * glm::inverse(transform);
+
+        // ----- TO DO: --------------------------------------
+            // Send ViewProjectionMatrix to the shaders once per scene here
+        // ---------------------------------------------------
+
+        Renderer2D::BeginBatch();
+    }
+
+    void Renderer2D::Begin(EditorCamera &camera)
+    {
+        camera.OnUpdate();
+        s_RendererData.ViewProjectionMatrix = camera.GetProjection() * camera.GetView();
 
         // ----- TO DO: --------------------------------------
             // Send ViewProjectionMatrix to the shaders once per scene here
@@ -360,24 +371,33 @@ namespace Raccoon
         if (s_TexturedRectangleData.IndexCount >= RendererData::MaxIndices)
             Renderer2D::NextBatchTexturedRectangle();
 
-        uint32_t textureIndex = 0u;
-        for (uint32_t i = 0; i < s_TexturedRectangleData.CurrentTextureUnit; i++)
+        bool useDefaultTexture = false;
+        if (texture == nullptr || texture->IsLoaded() == false)
         {
-            if (*(s_TexturedRectangleData.TextureUnits[i]) == *texture)
-            {
-                textureIndex = i;
-                break;
-            }
+            useDefaultTexture = true;
         }
 
-        if (textureIndex == 0u)
+        uint32_t textureIndex = 0u;
+        if (useDefaultTexture == false)
         {
-            if (s_TexturedRectangleData.CurrentTextureUnit >= s_RendererData.MaxTextureUnits)
-				Renderer2D::NextBatchTexturedRectangle();
+            for (uint32_t i = 0; i < s_TexturedRectangleData.CurrentTextureUnit; i++)
+            {
+                if (*(s_TexturedRectangleData.TextureUnits[i]) == *texture)
+                {
+                    textureIndex = i;
+                    break;
+                }
+            }
 
-			textureIndex = s_TexturedRectangleData.CurrentTextureUnit;
-			s_TexturedRectangleData.TextureUnits[s_TexturedRectangleData.CurrentTextureUnit] = texture;
-            ++s_TexturedRectangleData.CurrentTextureUnit;
+            if (textureIndex == 0u)
+            {
+                if (s_TexturedRectangleData.CurrentTextureUnit >= s_RendererData.MaxTextureUnits)
+                    Renderer2D::NextBatchTexturedRectangle();
+
+                textureIndex = s_TexturedRectangleData.CurrentTextureUnit;
+                s_TexturedRectangleData.TextureUnits[s_TexturedRectangleData.CurrentTextureUnit] = texture;
+                ++s_TexturedRectangleData.CurrentTextureUnit;
+            }
         }
 
         for (uint32_t i = 0; i < 4; i++) // 4 because there is 4 vertices in Rectangle
@@ -385,7 +405,7 @@ namespace Raccoon
             s_TexturedRectangleData.CurrentVertex->Position = transform * s_RectangleData.RectangleVertexPositions[i];
             s_TexturedRectangleData.CurrentVertex->Color = color;
             s_TexturedRectangleData.CurrentVertex->TextureCoords = *(textureCoords + i);
-            s_TexturedRectangleData.CurrentVertex->TextureIndex = textureIndex;
+            s_TexturedRectangleData.CurrentVertex->TextureIndex = (useDefaultTexture == true) ? 0.f : textureIndex;
             ++s_TexturedRectangleData.CurrentVertex;
 		}   
         s_TexturedRectangleData.IndexCount += 6;  

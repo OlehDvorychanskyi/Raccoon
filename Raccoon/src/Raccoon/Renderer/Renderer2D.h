@@ -1,6 +1,5 @@
 #pragma once 
 #include <Raccoon/Renderer/ShaderLibrary.h>
-#include <Raccoon/Renderer/OrthographicCamera.h>
 #include <Raccoon/Renderer/Texture2D.h>
 #include <Raccoon/Renderer/Sprite.h>
 #include <Raccoon/Renderer/ParticleSystem.h>
@@ -18,6 +17,7 @@ namespace Raccoon
         static void Shutdown();
 
         static void Begin(Camera2D &camera, const glm::mat3 &transform);
+        static void Begin(EditorCamera &camera);
         static void End();
         
         // ----- TO DO: --------------------------------------
@@ -47,6 +47,7 @@ namespace Raccoon
         {
             uint32_t DrawCalls = 0;  
         };
+        
         
         static void ResetStats();
         static Stats GetStats();

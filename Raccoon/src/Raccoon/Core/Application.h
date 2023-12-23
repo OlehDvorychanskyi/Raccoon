@@ -44,6 +44,11 @@ namespace Raccoon
         ~Application(); 
 
         Window& GetWindow() { return *m_Window; }
+        ApplicationSpecification& GetSpecification() { return m_Specification; }
+
+        ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; } 
+
+        float GetFrameTime() const { return m_FrameTime; }
 
         void Close();
 
@@ -66,6 +71,7 @@ namespace Raccoon
         EventQueue m_Events;
         bool m_Running = true;
         static Application *m_Instance;
+        float m_FrameTime = 0.f;
 
         friend int ::main(int argc, char** argv);
     };

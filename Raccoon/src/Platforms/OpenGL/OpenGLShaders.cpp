@@ -9,7 +9,7 @@
 
 namespace Raccoon
 {
-    OpenGLShaders::OpenGLShaders(const std::string &vertexFilePath, const std::string &fragmentFilePath)
+    OpenGLShaders::OpenGLShaders(const FilePath &vertexFilePath, const FilePath &fragmentFilePath)
     {
         uint32_t vertex = CompileShader(vertexFilePath, ShaderType::Vertex);
         uint32_t fragment = CompileShader(fragmentFilePath, ShaderType::Fragment);
@@ -20,12 +20,12 @@ namespace Raccoon
         ExtractUniforms(ShaderType::Fragment);
     }
 
-    uint32_t OpenGLShaders::CompileShader(const std::string &filePath, ShaderType shaderType)
+    uint32_t OpenGLShaders::CompileShader(const FilePath &filePath, ShaderType shaderType)
     {
-        std::ifstream file(filePath);
+        std::ifstream file(filePath.GetGlobalPath());
         if (!file.is_open())
         {
-            RE_CORE_ERROR("Fail to open file {0}", filePath);
+            RE_CORE_ERROR("Fail to open file {0}", filePath.GetGlobalPath());
         }
         m_FilePath[shaderType] = filePath;
 
@@ -60,7 +60,7 @@ namespace Raccoon
         glDeleteShader(fragment);
     }
 
-    void OpenGLShaders::CheckCompileErrors(uint32_t shader, const std::string &filePath)
+    void OpenGLShaders::CheckCompileErrors(uint32_t shader, const FilePath &filePath)
     {
         int32_t isCompiled = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
@@ -71,7 +71,7 @@ namespace Raccoon
 
             std::vector<char> errorLog(maxLength);
             glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
-            RE_CORE_ERROR("Fail to compile shader ({0}):\n{1}", filePath, errorLog.data());
+            RE_CORE_ERROR("Fail to compile shader ({0}):\n{1}", filePath.GetGlobalPath(), errorLog.data());
             return;
         }
     }
