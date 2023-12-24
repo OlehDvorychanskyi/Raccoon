@@ -45,7 +45,7 @@ namespace Raccoon
 		{
 			RE_CORE_ASSERT(HasComponent<T>(), "Entity doesn't have a component!");
 
-			m_Scene->OnComponentRemoved<T>(GetComponent<T>());
+			m_Scene->OnComponentRemoved<T>(*this, GetComponent<T>());
 			m_Scene->m_Registry.GetRegistry().remove<T>(m_ID);
 		}
 

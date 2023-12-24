@@ -7,6 +7,7 @@
 
 #include <type_traits>
 #include <Raccoon/ImGui/Fonts.h>
+#include <Raccoon/Utils/PlatformUtils.h>
 
 namespace Raccoon
 {
@@ -74,19 +75,13 @@ namespace Raccoon
             ImGui::EndPopup();
         }
 
-        // Drag and drop source
         if (ImGui::BeginDragDropSource()) 
         {
-            // Set payload data (you can use your own payload type)
             ImGui::SetDragDropPayload("ENTITY", &entity, sizeof(Entity));
-
-            // Display the entity text
             ImGui::Text("Drag %s", name.c_str());
-
             ImGui::EndDragDropSource();
         }
 
-        // Drag and drop target
         if (ImGui::BeginDragDropTarget()) 
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY")) 
@@ -98,9 +93,6 @@ namespace Raccoon
                 RE_CORE_INFO("New Position: {0}", newPosition);
                 RE_CORE_INFO("Old Position: {0}", m_Scene->GetEntityOrder(draggedEntity.m_ID));
                 m_Scene->ChangeEntityPosition(draggedEntity.m_ID, newPosition);
-                
-
-                // m_Scene->SwapEntities(draggedEntity.m_ID, m_HoveredEntity.m_ID);
             }
 
             ImGui::EndDragDropTarget();
@@ -137,7 +129,7 @@ namespace Raccoon
             ImGui::PopFont();
             ImGui::PopStyleVar();
 
-            if (std::is_same<T, Transform2DComponent>() == false)
+            if (std::is_same<T, Transform2DComponent>() == false && std::is_same<T, ZComponent>() == false)
             {
                 ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
                 if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
@@ -254,39 +246,19 @@ namespace Raccoon
         DrawComponent<SpriteRendererComponent>("Sprite", entity, [] (auto &component)
         {
             ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-
-            static char pathBuffer[256];
-			// memset(pathBuffer, 0, sizeof(pathBuffer));
-
-            ImGui::InputText("Path", pathBuffer, sizeof(pathBuffer));
 			
-			if (ImGui::Button("Texture", ImVec2(100.0f, 0.0f)))
+			if (ImGui::Button("Load Texture", ImVec2(100.0f, 0.0f)))
             {
-                std::string path = pathBuffer;
-                std::shared_ptr<Texture2D> texture = Texture2D::Create(path);
-                if (texture->IsLoaded())
-                    component.Texture = texture;
-                else
-                    RE_WARN("Could not load texture {0}", path);
+                std::string filepath = FileDialogs::OpenFile("");
+                if (!filepath.empty())
+                {
+                    std::shared_ptr<Texture2D> texture = Texture2D::Create(filepath);
+                    if (texture->IsLoaded())
+                        component.Texture = texture;
+                    else
+                        RE_WARN("Could not load texture {0}", filepath);
+                }
             }
-			// if (ImGui::BeginDragDropTarget())
-			// {4
-            //     std::filesystem::path relativePath;
-            //     const wchar_t* itemPath = relativePath.c_str();
-            //     ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", itemPath, (wcslen(itemPath) + 1) * sizeof(wchar_t));
-
-			// 	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-			// 	{
-			// 		const wchar_t* path = (const wchar_t*)payload->Data;
-			// 		std::filesystem::path texturePath(path);
-			// 	    std::shared_ptr<Texture2D> texture = Texture2D::Create(texturePath.string());
-			// 		if (texture->IsLoaded())
-			// 			component.Texture = texture;
-			// 		else
-			// 			RE_WARN("Could not load texture {0}", texturePath.filename().string());
-			// 	}
-			// 	ImGui::EndDragDropTarget();
-			// }
         });
 
         DrawComponent<ZComponent>("ZIndex", entity, [] (auto &component)
@@ -300,53 +272,6 @@ namespace Raccoon
                 component.ZIndex = static_cast<uint32_t>(value);
             }
         });
-
-
-        // if (entity.HasComponent<Transform2DComponent>())
-        // {
-        //     if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-        //     {
-        //         auto &transform = entity.GetComponent<Transform2DComponent>();
-        //         Draw2DVector("Position", transform.Position);
-        //         DrawSlider("Rotation", transform.RotationAngle);
-        //         Draw2DVector("Scale", transform.Scale, {1.f, 1.f});
-        //         ImGui::TreePop();
-        //     }
-        // }
-
-        // if (entity.HasComponent<OrthographicCameraComponent>())
-        // {
-        //     if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
-        //     {
-        //         auto &camera = entity.GetComponent<OrthographicCameraComponent>();
-
-        //         ImGui::Checkbox("Active Camera", &camera.ActiveCamera);
-        //         ImGui::Checkbox("Fixed Aspect Ratio", &camera.FixedAspectRatio);
-            
-        //         ImGui::TreePop();
-        //     }
-        // }
-
-        // if (entity.HasComponent<ColorRendererComponent>())
-        // {
-        //     if (ImGui::TreeNodeEx("Sprite", ImGuiTreeNodeFlags_DefaultOpen))
-        //     {
-        //         auto &color = entity.GetComponent<ColorRendererComponent>();
-
-        //         ImGui::Columns(2, (const char*)0, false);
-		//         ImGui::SetColumnWidth(0, 50.f);
-        //         ImGui::Text("Color");
-        //         ImGui::NextColumn();
-
-        //         ImGui::PushItemWidth(ImGui::CalcItemWidth());
-        //         ImGui::SameLine();
-        //         ImGui::ColorEdit4("##", glm::value_ptr(color.Color));
-        //         ImGui::PopItemWidth();
-
-        //         ImGui::Columns(1);
-        //         ImGui::TreePop();
-        //     }
-        // }
     }
 
     void HierarchyPanel::Draw2DVector(const std::string &label, glm::vec2 &values, const glm::vec2 &resetValues, float columnWidth)

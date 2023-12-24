@@ -34,26 +34,6 @@ namespace Raccoon
 
     void EditorLayer::OnAttach() 
     {   
-        // m_GrassTexture = Raccoon::Texture2D::Create("assets/textures/Grass.png");
-        // m_WaterTexture = Raccoon::Texture2D::Create("assets/textures/Water.png");
-        // m_ChapelTexture = Raccoon::Texture2D::Create("assets/textures/Chapel.png");
-        // m_Sprites = Raccoon::Texture2D::Create("assets/textures/GrassSprite.png");
-
-        // m_Grass = Raccoon::Sprite::CreateFromOffset(m_Sprites, {16.f, 16.f}, {32.f, 0.f});
-        // m_Water = Raccoon::Sprite::CreateFromOffset(m_Sprites, {16.f, 16.f}, {0.f, 0.f});
-
-        // m_Particle.BeginColor = {0.9f, 0.9f, 0.9f, 0.1f};
-        // m_Particle.EndColor = {0.94f, 0.5f, 0.074f, 1.f};
-
-        // m_Particle.BeginSize = 0.3f;
-        // m_Particle.EndSize = 0.01f;
-
-        // m_Particle.Position = {5.f, 0.f};
-
-        // m_Particle.Velocity = {0.f, 0.2f};
-        // m_Particle.VelocityRangeX = {-0.5f, 0.5f}; 
-        // m_Particle.VelocityRangeY = {0.1f, 0.5f};
-
         Raccoon::FrameBufferSpecification spec;
         spec.Width = 1280;
         spec.Height = 720;
@@ -61,37 +41,19 @@ namespace Raccoon
 
         RE_WARN("{0}", std::filesystem::current_path().string());
 
-        auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
-		if (commandLineArgs.Count > 1)
-		{
-			auto projectFilePath = commandLineArgs[1];
-			OpenProject(projectFilePath);
-		}
-        else
-		{
-			if (!OpenProject())
-				Application::Get().Close();
+        // auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
+		// if (commandLineArgs.Count > 1)
+		// {
+		// 	auto projectFilePath = commandLineArgs[1];
+		// 	OpenProject(projectFilePath);
+		// }
+        // else
+		// {
+		// 	if (!OpenProject())
+		// 		Application::Get().Close();
+		// }
 
-		}
-
-        // auto entity1 = m_ActiveScene->CreateEntity("Chapel");
-        // entity1.AddComponent<SpriteRendererComponent>();
-        // entity1.GetComponent<SpriteRendererComponent>().Texture = m_ChapelTexture;
-        // entity1.GetComponent<ZComponent>().ZIndex = 1;
-
-        // auto entity2 = m_ActiveScene->CreateEntity("Rectangle");
-        // entity2.AddComponent<ColorRendererComponent>();
-        // entity2.GetComponent<ColorRendererComponent>().Color = glm::vec4(0.f, 0.5f, 1.f, 1.f);
-        // entity2.GetComponent<Transform2DComponent>().Position = glm::vec2(0.5f, 0.5f);
-
-        // auto camera = m_ActiveScene->CreateEntity("Camera");
-        // camera.AddComponent<OrthographicCameraComponent>();
-        // camera.AddComponent<EntityControllerComponent>();
-        // camera.GetComponent<OrthographicCameraComponent>().Camera.SetAspectRatio(Application::Get().GetWindow().GetAspectRatio());  
-
-        // auto testCamera = m_ActiveScene->CreateEntity("TestCamera");
-        // testCamera.AddComponent<OrthographicCameraComponent>(Application::Get().GetWindow().GetAspectRatio());
-        
+        m_ActiveScene = std::make_shared<Scene>();
         m_HierarchyPanel.SetScene(m_ActiveScene);
 
         m_EditorCamera = EditorCamera(16.f / 9.f);
@@ -139,11 +101,6 @@ namespace Raccoon
                 m_EditorCamera.SetAspectRatio((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
             }
         // ---------------------------------------------------
-
-
-
-        // m_ParticleSystem.OnUpdate(timestep);
-        // m_ParticleSystem.Emit(m_Particle);
 
         Raccoon::Renderer2D::ResetStats();
         #ifndef RE_NO_IMGUI
@@ -242,19 +199,19 @@ namespace Raccoon
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("Project"))
-            {
-                if (ImGui::MenuItem("New Project", "Ctrl+N"))
-                    NewProject();
+            // if (ImGui::BeginMenu("Project"))
+            // {
+            //     if (ImGui::MenuItem("New Project", "Ctrl+N"))
+            //         NewProject();
 
-                if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
-                    OpenProject();
+            //     if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
+            //         OpenProject();
 
-                if (ImGui::MenuItem("Save Project As...", "Ctrl+S"))
-                    SaveProject();
+            //     if (ImGui::MenuItem("Save Project As...", "Ctrl+S"))
+            //         SaveProject();
             
-                ImGui::EndMenu();
-            }
+            //     ImGui::EndMenu();
+            // }
 
             ImGui::EndMenuBar();
         }

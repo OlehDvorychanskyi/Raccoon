@@ -26,17 +26,6 @@ namespace Raccoon
         void OpenProject(const FilePath& path);
         void SaveProject();
     private:
-        // Raccoon::OrthographicCameraController m_CameraController;
-        // std::shared_ptr<Raccoon::Camera2D> m_Camera;
-        // std::shared_ptr<Raccoon::Camera2DController> m_Controller;
-
-        std::shared_ptr<Texture2D> m_Sprites;
-        std::shared_ptr<Sprite> m_Grass, m_Water;
-        
-        std::shared_ptr<Texture2D> m_GrassTexture;
-        std::shared_ptr<Texture2D> m_WaterTexture;
-        std::shared_ptr<Texture2D> m_ChapelTexture;
-
         ParticleSystem2D m_ParticleSystem;
         Particle2D m_Particle;
 
@@ -44,7 +33,6 @@ namespace Raccoon
 
         glm::vec2 m_ViewportSize = {0.f, 0.f};
         glm::vec2 m_ViewportPosition = {0.f, 0.f};
-        // Raccoon::OrthographicCamera m_Camera;
 
         std::shared_ptr<Scene> m_ActiveScene;
         FilePath m_EditorScenePath;

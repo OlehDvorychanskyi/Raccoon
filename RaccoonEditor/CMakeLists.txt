@@ -18,3 +18,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sr
 #     # target_compile_options(spdlog PRIVATE -Os)
 #     target_link_options(RaccoonEditor PRIVATE "-Wl,--no-keep-memory")
 # endif()
+
+set(ASSETS_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+set(BUILD_FOLDER ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_FOLDER} ${BUILD_FOLDER}/bin/assets)

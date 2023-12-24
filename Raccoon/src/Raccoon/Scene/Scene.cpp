@@ -276,9 +276,21 @@ namespace Raccoon
     {
         
     }
+
+    template<>
+    void Scene::OnComponentRemoved<Transform2DComponent>(Entity entity, Transform2DComponent& component)
+    {
+        
+    }
     
     template<>
     void Scene::OnComponentAdded<NameComponent>(Entity entity, NameComponent& component)
+    {
+        
+    }
+
+    template<>
+    void Scene::OnComponentRemoved<NameComponent>(Entity entity, NameComponent& component)
     {
         
     }
@@ -290,10 +302,23 @@ namespace Raccoon
     }
     
     template<>
+    void Scene::OnComponentRemoved<ZComponent>(Entity entity, ZComponent& component)
+    {
+        
+    }
+    
+    template<>
     void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
     {
         if (!entity.HasComponent<ZComponent>())
             entity.AddComponent<ZComponent>();
+    }
+
+    template<>
+    void Scene::OnComponentRemoved<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
+    {
+        if (!entity.HasComponent<ColorRendererComponent>() && entity.HasComponent<ZComponent>())
+            entity.RemoveComponent<ZComponent>();
     }
     
     template<>
@@ -301,6 +326,13 @@ namespace Raccoon
     {
         if (!entity.HasComponent<ZComponent>())
             entity.AddComponent<ZComponent>();
+    }
+
+    template<>
+    void Scene::OnComponentRemoved<ColorRendererComponent>(Entity entity, ColorRendererComponent& component)
+    {
+        if (!entity.HasComponent<SpriteRendererComponent>() && entity.HasComponent<ZComponent>())
+            entity.RemoveComponent<ZComponent>();
     }
         
     template<>
@@ -314,7 +346,20 @@ namespace Raccoon
     }
 
     template<>
+    void Scene::OnComponentRemoved<OrthographicCameraComponent>(Entity entity, OrthographicCameraComponent& component)
+    {
+        if (IsPrimaryCamera(&component.Camera))
+            SetPrimaryCamera(nullptr, nullptr);
+    }
+
+    template<>
     void Scene::OnComponentAdded<EntityControllerComponent>(Entity entity, EntityControllerComponent& component)
+    {
+        component.SetTransformComponent(m_Registry.GetRegistry().get<Transform2DComponent>(entity));
+    }
+    
+    template<>
+    void Scene::OnComponentRemoved<EntityControllerComponent>(Entity entity, EntityControllerComponent& component)
     {
         component.SetTransformComponent(m_Registry.GetRegistry().get<Transform2DComponent>(entity));
     }
@@ -324,11 +369,10 @@ namespace Raccoon
     {
         
     }
-
+    
     template<>
-    void Scene::OnComponentRemoved<OrthographicCameraComponent>(OrthographicCameraComponent& component)
+    void Scene::OnComponentRemoved<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
     {
-        if (IsPrimaryCamera(&component.Camera))
-            SetPrimaryCamera(nullptr, nullptr);
+        
     }
 }

@@ -48,17 +48,15 @@ namespace Raccoon
 		void OnComponentAdded(Entity entity, T& component);
 
         template<typename T>
-		void OnComponentRemoved(T& component);
+		void OnComponentRemoved(Entity entity, T& component);
 
         std::size_t GetEntityOrder(entt::entity entity) const;
-        // void SwapEntities(entt::entity entity1, entt::entity entity2);
         void ChangeEntityPosition(entt::entity entity, std::size_t newPosition);
 
         void RenderScene(Camera2D &camera, const glm::mat3 &transform);
         void RenderScene(EditorCamera &camera);
         void RenderScene();
     private:    
-        // entt::registry m_Registry;
         Registry m_Registry;
         uint32_t m_ViewportWidth = 0u, m_ViewportHeight = 0u;
 
@@ -76,15 +74,4 @@ namespace Raccoon
         friend class HierarchyPanel;
         friend class SceneSerializer;
     };
-
-    class OrthographicCameraComponent;
-
-    template<typename T>
-    void Scene::OnComponentRemoved(T& component)
-    {
-
-    }
-
-    template<>
-    void Scene::OnComponentRemoved<OrthographicCameraComponent>(OrthographicCameraComponent& component);
 }
