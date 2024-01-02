@@ -2,6 +2,7 @@
 #include <Raccoon/Core/Application.h>
 
 #include "EditorLayer.h"
+#include "ProjectManagerLayer.h"
 
 namespace Raccoon
 {
@@ -11,14 +12,14 @@ namespace Raccoon
         EditorApplication(ApplicationSpecification specification)
             : Application(specification)
         {
-            PushLayer(new EditorLayer);
+            PushLayer(new ProjectManagerLayer());
         }
     };
 
     Application* CreateApplication(ApplicationCommandLineArgs args)
     {
         ApplicationSpecification specification;
-        specification.Name = "Editor";
+        specification.Name = "Project Manager";
         specification.CommandLineArgs = args;
         
         return new EditorApplication(specification);

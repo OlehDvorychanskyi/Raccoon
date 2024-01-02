@@ -26,12 +26,16 @@ namespace Raccoon
 
         std::uint32_t GetIndex() const { return m_Index; }
 
+        Layer(const std::string &name = "Unknown") : m_Name {name} {}
         virtual ~Layer() = default;
 
         DECLARE_LAYER_DEBUG()
     private:
         std::uint32_t m_Index = 0;
+        std::string m_Name;
+        bool m_Delete = false;
 
         friend class LayerStack;
+        friend class Application;
     };
 }

@@ -1,3 +1,4 @@
+#ifndef RE_NO_IMGUI
 #pragma once 
 #include <map>
 #include <string>
@@ -15,3 +16,4 @@ namespace Raccoon
         static std::map<std::string, ImFont*> m_Fonts;
     };
 }
+#endif

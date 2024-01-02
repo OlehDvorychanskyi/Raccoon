@@ -33,10 +33,10 @@ namespace Raccoon
         
         RE_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "Raccoon requires OpenGL version to be at least 4.5!");
         
-        // #ifdef RE_DEBUG
-        //     glEnable(GL_DEBUG_OUTPUT);
-        //     glDebugMessageCallback(DebugCallback, nullptr);
-        // #endif
+        #ifdef RE_DEBUG_OPENGL
+            glEnable(GL_DEBUG_OUTPUT);
+            glDebugMessageCallback(DebugCallback, nullptr);
+        #endif
     }
 
     void OpenGLContext::SwapBuffer()

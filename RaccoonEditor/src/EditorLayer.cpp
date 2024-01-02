@@ -15,6 +15,11 @@
 
 #include <Raccoon/ImGui/Guizmo.h>
 
+#include <cstdlib>
+#include <fstream>
+
+#include <Raccoon/ImGui/Fonts.h>
+
 namespace Raccoon
 {
     static void DisableBlendingCallback(const ImDrawList* parent_list, const ImDrawCmd* cmd) 
@@ -28,8 +33,16 @@ namespace Raccoon
     }
 
     EditorLayer::EditorLayer()
+        : Layer("EditorLayer")
     {
         
+    }
+
+    EditorLayer::EditorLayer(const FilePath &projectPath)
+        : Layer("EditorLayer")
+    {
+        m_ActiveProjectPath = projectPath;
+        OpenProject(projectPath);
     }
 
     void EditorLayer::OnAttach() 
@@ -39,46 +52,14 @@ namespace Raccoon
         spec.Height = 720;
         m_FrameBuffer = Raccoon::FrameBuffer::Create(spec);
 
-        RE_WARN("{0}", std::filesystem::current_path().string());
-
-        // auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
-		// if (commandLineArgs.Count > 1)
-		// {
-		// 	auto projectFilePath = commandLineArgs[1];
-		// 	OpenProject(projectFilePath);
-		// }
-        // else
-		// {
-		// 	if (!OpenProject())
-		// 		Application::Get().Close();
-		// }
-
-        m_ActiveScene = std::make_shared<Scene>();
         m_HierarchyPanel.SetScene(m_ActiveScene);
-
+        m_ContentBrowserPanel.SetBasePath(m_ActiveProjectPath.GetParentPath());
         m_EditorCamera = EditorCamera(16.f / 9.f);
-
-        // switch (m_EditorState)
-        // {
-        //     case EditorState::Editor:  
-        //         m_ActiveScene->OnEditorBegin();
-        //         break;
-        //     case EditorState::Runtime:
-        //         m_ActiveScene->OnRuntimeBegin();
-        //         break;
-        // }
-
-        #ifdef RE_NO_IMGUI
-            m_EditorState = EditorState::Runtime;
-        #else
-            m_EditorState = EditorState::Editor;
-        #endif
-
+        m_EditorState = EditorState::Editor;
     }   
 
     void EditorLayer::OnDetach()
     {
-
     }
 
     void EditorLayer::OnEvent(Raccoon::Event &event)
@@ -91,8 +72,6 @@ namespace Raccoon
 
     void EditorLayer::OnUpdate(const Raccoon::TimeStep &timestep)
     {
-        m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-
         // ----- Resize --------------------------------------
             FrameBufferSpecification spec = m_FrameBuffer->GetSpecification();
             if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
@@ -102,10 +81,8 @@ namespace Raccoon
             }
         // ---------------------------------------------------
 
-        Raccoon::Renderer2D::ResetStats();
-        #ifndef RE_NO_IMGUI
-            m_FrameBuffer->Bind();
-        #endif
+        // Raccoon::Renderer2D::ResetStats();
+        m_FrameBuffer->Bind();
         Raccoon::RendererCommand::Clear({0.1f, 0.1f, 0.1f, 1.f});
 
         switch (m_EditorState)
@@ -126,23 +103,21 @@ namespace Raccoon
                 break;
             }
         }
-        #ifndef RE_NO_IMGUI
-            m_FrameBuffer->Unbind();
-        #endif
+        m_FrameBuffer->Unbind();
     }
 
     void EditorLayer::OnImGuiRender()
     {
         // ImGui::ShowDemoWindow();
+        // ImGui::ShowMetricsWindow();
+
         static bool p_open = true;
 
         static bool opt_fullscreen = true;
         static bool opt_padding = false;
         static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-        // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-        // because it would be confusing to have two docking targets within each others.
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar;
         if (opt_fullscreen)
         {
             const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -172,9 +147,9 @@ namespace Raccoon
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
         {
             ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags/*  | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoTabBar */);
         }
-
+        
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("File"))
@@ -199,24 +174,21 @@ namespace Raccoon
                 ImGui::EndMenu();
             }
 
-            // if (ImGui::BeginMenu("Project"))
-            // {
-            //     if (ImGui::MenuItem("New Project", "Ctrl+N"))
-            //         NewProject();
+            if (ImGui::BeginMenu("Project"))
+            {
+                if (ImGui::MenuItem("Export Project"))
+                {
+                    m_ShowExportWindow = true;
+                }
 
-            //     if (ImGui::MenuItem("Open Project...", "Ctrl+O"))
-            //         OpenProject();
-
-            //     if (ImGui::MenuItem("Save Project As...", "Ctrl+S"))
-            //         SaveProject();
-            
-            //     ImGui::EndMenu();
-            // }
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMenuBar();
         }
 
         m_HierarchyPanel.OnImGuiRender();
+        m_ContentBrowserPanel.OnImGuiRender();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport", (bool*)0, ImGuiWindowFlags_NoCollapse);
@@ -231,8 +203,12 @@ namespace Raccoon
         m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsWindowHovered();
 
-        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused);
-        Input::BlockInputs(!m_ViewportFocused);
+        bool block = !m_ViewportHovered;
+
+        RE_CORE_INFO("Focused: {0}, Hovered: {1}, Block: {2}", m_ViewportFocused, m_ViewportHovered, block);
+
+        Application::Get().GetImGuiLayer()->BlockEvents(block);
+        Input::BlockInputs(block);
 
         ImDrawList* drawList = ImGui::GetWindowDrawList();
 
@@ -252,26 +228,90 @@ namespace Raccoon
         ImGui::End();
         ImGui::PopStyleVar();
 
-        ImGui::Begin("Editor Stats", (bool*)0, ImGuiWindowFlags_NoCollapse);
-        ImGui::Text("Frame Time: %.4f ms", Application::Get().GetFrameTime());
-        ImGui::Text("Draw Calls: %u", Renderer2D::GetStats().DrawCalls);
-
-        ImGui::End();
+        // ImGui::Begin("Editor Stats", (bool*)0, ImGuiWindowFlags_NoCollapse);
+        // ImGui::Text("Frame Time: %.4f ms", Application::Get().GetFrameTime());
+        // ImGui::Text("Draw Calls: %u", Renderer2D::GetStats().DrawCalls);
+        // ImGui::End();
         
         ImGui::End();
+
+        if (m_ShowExportWindow)
+        {
+            ImGui::OpenPopup("Export Project");
+
+            if (ImGui::BeginPopupModal("Export Project", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text("Export Path:");
+                
+                static char exportPath[256] = "";
+                ImGui::InputText("##ExportPath", exportPath, IM_ARRAYSIZE(exportPath), ImGuiInputTextFlags_EnterReturnsTrue);
+
+                ImGui::SameLine();
+
+                if (ImGui::Button("Browse"))
+                {
+                    std::string filepath = FileDialogs::SaveFile("Executable (*.exe)\0*.exe\0");
+                    if (!filepath.empty())
+                    {
+                        strcpy(exportPath, filepath.c_str());
+                        m_ExportPath.SetPath(filepath);
+                    }
+                }
+
+                if (ImGui::Button("Export", ImVec2(120, 0)))
+                {   
+                    std::string exportFolder = m_ExportPath.GetParentPath();
+                    std::string executableName = m_ExportPath.GetFileNameWithoutExtention();                    
+
+                    std::string raccoonDataFolder = FileSystem::GetAppDataPath().GetRelativePath();
+                    std::string templateName = "WindowsRelease";
+
+                    CopyFile(raccoonDataFolder + "/export/templates/" + templateName + ".exe", exportFolder + "/" + executableName + ".exe");
+
+                    std::string scenePathFrom = Project::GetActive()->GetConfig().StartScene.GetGlobalPath();
+                    
+                    if (!scenePathFrom.empty())
+                    {
+                        std::string scenePathTo = exportFolder + "/" + executableName + ".re";
+                        CopyFile(scenePathFrom, scenePathTo);
+                    }
+                    else 
+                    {
+                        RE_CORE_ERROR("There is no startup scene in your ptoject");
+                    }
+                
+                    ImGui::CloseCurrentPopup();
+                    m_ShowExportWindow = false;
+                }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button("Cancel", ImVec2(120, 0)))
+                {
+                    ImGui::CloseCurrentPopup();
+                    m_ShowExportWindow = false;
+                }
+
+                ImGui::EndPopup();
+            }
+        }
     }
 
     void EditorLayer::NewScene()
     {
         m_ActiveScene = std::make_shared<Scene>();
         m_HierarchyPanel.SetScene(m_ActiveScene);
+        m_UnsavedScene = true;
     }
 
     void EditorLayer::OpenScene()
     {
         std::string filepath = FileDialogs::OpenFile("Raccoon Scene (*.re)\0*.re\0");
         if (!filepath.empty())  
+        {
             OpenScene(filepath);
+            m_UnsavedScene = true;
+        }
     }
 
     void EditorLayer::OpenScene(const FilePath &path)
@@ -281,6 +321,7 @@ namespace Raccoon
             std::shared_ptr<Scene> newScene = std::make_shared<Scene>();
             m_HierarchyPanel.SetScene(newScene);
             m_ActiveScene = newScene;
+            m_UnsavedScene = true;
             return;
         }
 
@@ -299,6 +340,7 @@ namespace Raccoon
             m_ActiveScene = newScene;
             m_EditorScenePath = path;
         }
+        m_UnsavedScene = true;
     }
 
     void EditorLayer::SaveScene()
@@ -307,6 +349,8 @@ namespace Raccoon
         {
             SceneSerializer serializer(m_ActiveScene);
 		    serializer.SerializeText(m_EditorScenePath);
+
+            SaveSceneToActiveProject(m_EditorScenePath);
         }
 		else
 			SaveSceneAs();
@@ -320,6 +364,8 @@ namespace Raccoon
             SceneSerializer serializer(m_ActiveScene);
 		    serializer.SerializeText(filepath);
             m_EditorScenePath.SetPath(filepath);
+
+            SaveSceneToActiveProject(filepath);
 		}
     }
 
@@ -347,10 +393,17 @@ namespace Raccoon
 		return true;
     }
 
-    void EditorLayer::SaveProject()
+    void EditorLayer::SaveProjectAs()
     {
         auto path = FileDialogs::SaveFile("Raccoon Project (*.reproj)\0*.reproj\0");
         // Project::GetActive()->GetConfig().StartScene = m_EditorScenePath;
         Project::SaveActive(path);
+    }
+
+    void EditorLayer::SaveSceneToActiveProject(const FilePath &path)
+    {
+        Project::GetActive()->GetConfig().StartScene = path;
+        Project::SaveActive(m_ActiveProjectPath);
+        m_UnsavedScene = false;
     }
 }

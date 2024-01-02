@@ -93,3 +93,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
         PUBLIC RE_RELEASE
     )
 endif()
+
+if (RACCOON_TYPE STREQUAL "Game")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC RE_NO_IMGUI RE_OPTIMIZE)
+endif()

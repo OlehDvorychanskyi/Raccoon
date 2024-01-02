@@ -7,6 +7,7 @@ namespace Raccoon
     {
     public:
         OpenGLTexture2D(const FilePath &filepath);
+        OpenGLTexture2D(unsigned char *data, unsigned int length);
         OpenGLTexture2D(uint32_t width, uint32_t height, TextureFormat internalFormat = TextureFormat::RGBA8);
         ~OpenGLTexture2D();
 
@@ -28,6 +29,7 @@ namespace Raccoon
         virtual bool operator==(const Texture2D& other) const override;     
     private:
         unsigned char* LoadTextureFromFile(const FilePath &filepath);
+        unsigned char* LoadTextureFromMemory(unsigned char *data, unsigned int size);
         void ApplyQuality();
     private:
         bool m_Loaded = false;

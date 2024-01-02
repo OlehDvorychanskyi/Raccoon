@@ -1,3 +1,4 @@
+#ifndef RE_NO_IMGUI
 #pragma once 
 #include <imgui.h>
 #include <glm/glm.hpp>
@@ -38,3 +39,4 @@ namespace Raccoon
         static glm::vec2 ConvertPixelsToWorldSpace(const ImVec2& pixelCoords);
     };
 }
+#endif

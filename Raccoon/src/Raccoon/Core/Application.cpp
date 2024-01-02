@@ -1,9 +1,8 @@
 #include <Raccoon/Core/Application.h>
 #include <Raccoon/Renderer/RendererCommand.h>
-
 #include <Raccoon/Core/TimeStep.h>
-
 #include <Raccoon/Debug/Timer.h>
+#include <Raccoon/FileSystem/FileSystem.h>
 
 namespace Raccoon
 {   
@@ -22,9 +21,14 @@ namespace Raccoon
             this->QueueEvent(event);
         });
 
-        m_ImGuiLayer = new ImGuiLayer();
-        m_Layers.PushOverlay(m_ImGuiLayer);
-
+        m_Window->SetLogo(FileSystem::GetAppDataPath().GetRelativePath() + "\\resources\\logo.png");
+        m_Window->SetTitleBarDarkMode();
+        
+        #ifndef RE_NO_IMGUI
+            m_ImGuiLayer = new ImGuiLayer();
+            m_Layers.PushOverlay(m_ImGuiLayer);
+        #endif
+        
         Renderer::Init();
     } 
 
@@ -46,13 +50,24 @@ namespace Raccoon
             deltaTime.Update();
             DispatchEvent();
             
-            for (Layer *layer : m_Layers)
-                layer->OnUpdate(deltaTime);
+            m_Layers.BeginIterating();
+            for (auto i = m_Layers.GetBeginIndex(); i < m_Layers.GetEndIndex(); i = m_Layers.GetCurrentIndex())
+            {
+                m_Layers.m_Layers[i]->OnUpdate(deltaTime);
+            }
+            m_Layers.EndIterating();
+
 
             #ifndef RE_NO_IMGUI
                 m_ImGuiLayer->Begin();
-                for (Layer *layer : m_Layers)
-                    layer->OnImGuiRender();
+            
+                m_Layers.BeginIterating();
+                for (auto i = m_Layers.GetBeginIndex(); i < m_Layers.GetEndIndex(); i = m_Layers.GetCurrentIndex())
+                {
+                    m_Layers.m_Layers[i]->OnImGuiRender();
+                }
+                m_Layers.EndIterating();
+
                 m_ImGuiLayer->End();
             #endif 
 
@@ -99,9 +114,12 @@ namespace Raccoon
     }
 
     void Application::OnWindowResize(WindowResizeEvent &event)
-    {
-        auto type = event.GetEventType();
-        Renderer::SetViewport(event.GetWidth(), event.GetHeight());
+    {   
+        glm::uvec2 size = m_Window->GetFramebufferSize();
+        Renderer::SetViewport(size.x, size.y);
+
+        // auto type = event.GetEventType();
+        // Renderer::SetViewport(event.GetWidth(), event.GetHeight());
     }
 
     void Application::PushLayer(Layer *layer)
@@ -112,5 +130,15 @@ namespace Raccoon
     void Application::PushOverlay(Layer *overlay)
     {
         m_Layers.PushOverlay(overlay);
+    }
+
+    void Application::PopLayer(Layer *layer)
+    {
+        m_Layers.PopLayer(layer);
+    }
+
+    void Application::PopOverlay(Layer *overlay)
+    {
+        m_Layers.PopOverlay(overlay);
     }
 }

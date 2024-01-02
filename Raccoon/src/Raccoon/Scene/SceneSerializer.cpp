@@ -223,7 +223,7 @@ namespace Raccoon
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
 
-		std::ofstream fout(filepath.GetGlobalPath());
+		std::ofstream fout(filepath.GetRelativePath());
 		fout << out.c_str();
     }
 
@@ -237,7 +237,7 @@ namespace Raccoon
 		YAML::Node data;
 		try
 		{
-			data = YAML::LoadFile(filepath.GetGlobalPath());
+			data = YAML::LoadFile(filepath.GetRelativePath());
 		}
 		catch (YAML::ParserException e)
 		{

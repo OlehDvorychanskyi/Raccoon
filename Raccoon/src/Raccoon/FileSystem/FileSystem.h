@@ -1,13 +1,15 @@
 #pragma once
 #include <filesystem>
+#include <Raccoon/FileSystem/FilePath.h>
 
 namespace Raccoon
 {
     class FileSystem
     {
     public:
-        static std::filesystem::path GetBaseDirectory(); // TODO: think about return type
+        static FilePath GetAppDataPath();
+        static FilePath GetBaseDirectory();
     private:
-        static std::filesystem::path m_BasePath;
+        static FilePath m_AppData;
     };
 }

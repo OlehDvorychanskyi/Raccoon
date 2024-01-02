@@ -49,6 +49,7 @@ namespace Raccoon
         virtual bool operator==(const Texture2D& other) const = 0;
 
         static std::shared_ptr<Texture2D> Create(const FilePath &filepath);
+        static std::shared_ptr<Texture2D> Create(unsigned char *data, unsigned int length);
         static std::shared_ptr<Texture2D> Create(uint32_t width, uint32_t height, TextureFormat internalFormat = TextureFormat::RGBA8);
     };
 }
