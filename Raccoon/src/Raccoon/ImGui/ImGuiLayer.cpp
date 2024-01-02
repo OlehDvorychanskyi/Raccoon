@@ -13,9 +13,9 @@
 #include <Raccoon/Renderer/Color.h>
 #include <Raccoon/ImGui/Fonts.h>
 
-#include <Raccoon/ImGui/fonts/IconFont.h>
-#include <Raccoon/ImGui/fonts/OpenSans-Bold.h>
-#include <Raccoon/ImGui/fonts/OpenSans-Regular.h>
+#include <../fonts/IconFont.h>
+#include <../fonts/OpenSans-Bold.h>
+#include <../fonts/OpenSans-Regular.h>
 
 namespace Raccoon
 {
