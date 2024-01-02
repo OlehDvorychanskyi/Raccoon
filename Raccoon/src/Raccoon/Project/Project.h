@@ -25,9 +25,12 @@ namespace Raccoon
         ProjectConfig& GetConfig() { return m_Config; }
         static std::shared_ptr<Project> GetActive() { return s_ActiveProject; }
 
+        static std::shared_ptr<Project> CopyActive();
+
         static std::shared_ptr<Project> New();
         static std::shared_ptr<Project> Load(const FilePath &path);
         static bool SaveActive(const FilePath &path);
+        static bool Save(const std::shared_ptr<Project> project, const FilePath &path);
     private:
         ProjectConfig m_Config;
         FilePath m_Directory;

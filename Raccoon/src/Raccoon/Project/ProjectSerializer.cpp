@@ -24,14 +24,29 @@ namespace Raccoon
 				out << YAML::BeginMap;// Project
 				out << YAML::Key << "Name" << YAML::Value << config.Name;
 				out << YAML::Key << "StartScene" << YAML::Value << config.StartScene.GetRelativePath();
-				out << YAML::Key << "AssetDirectory" << YAML::Value << config.AssetDirectory.GetRelativePath();
+				out << YAML::Key << "AssetDirectory" << YAML::Value << config.AssetDirectory.GetGlobalPath();
 				out << YAML::EndMap; // Project
 			}
 			out << YAML::EndMap; // Root
 		}
 
-		std::ofstream fout(path.GetRelativePath());
-		fout << out.c_str();
+		std::string filePath;
+
+		if (path.IsDirectory())
+			filePath = path.GetGlobalPath() + "/" + config.Name + ".reproj";
+		else
+			filePath = path.GetGlobalPath();
+
+		RE_CORE_INFO("{0}", filePath);
+		std::ofstream fout(filePath);
+		if (fout.is_open())
+		{
+			fout << out.c_str();
+		}
+		else
+		{
+			RE_CORE_ERROR("Couldn't open file {0}", filePath);
+		}
 
 		return true;
     }

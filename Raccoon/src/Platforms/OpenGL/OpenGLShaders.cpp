@@ -9,10 +9,10 @@
 
 namespace Raccoon
 {
-    OpenGLShaders::OpenGLShaders(const FilePath &vertexFilePath, const FilePath &fragmentFilePath)
+    OpenGLShaders::OpenGLShaders(const FilePath &vertexFilePath, const FilePath &fragmentFilePath, bool fromFile)
     {
-        uint32_t vertex = CompileShader(vertexFilePath, ShaderType::Vertex);
-        uint32_t fragment = CompileShader(fragmentFilePath, ShaderType::Fragment);
+        uint32_t vertex = CompileShader(GetSourceCode(vertexFilePath), ShaderType::Vertex);
+        uint32_t fragment = CompileShader(GetSourceCode(fragmentFilePath), ShaderType::Fragment);
         
         CreateShaderProgram(vertex, fragment);    
         
@@ -20,28 +20,70 @@ namespace Raccoon
         ExtractUniforms(ShaderType::Fragment);
     }
 
-    uint32_t OpenGLShaders::CompileShader(const FilePath &filePath, ShaderType shaderType)
+    OpenGLShaders::OpenGLShaders(const std::string &vertexSource, const std::string &fragmentSource)
     {
-        std::ifstream file(filePath.GetGlobalPath());
+        uint32_t vertex = CompileShader(vertexSource, ShaderType::Vertex);
+        uint32_t fragment = CompileShader(fragmentSource, ShaderType::Fragment);
+
+        CreateShaderProgram(vertex, fragment);    
+        
+        ExtractUniforms(ShaderType::Vertex);
+        ExtractUniforms(ShaderType::Fragment);
+    }
+
+    // uint32_t OpenGLShaders::CompileShader(const FilePath &filePath, ShaderType shaderType)
+    // {
+    //     std::ifstream file(filePath.GetRelativePath());
+    //     if (!file.is_open())
+    //     {
+    //         RE_CORE_ERROR("Fail to open file {0}", filePath.GetRelativePath());
+    //     }
+    //     m_FilePath[shaderType] = filePath;
+
+    //     std::string sourceCode;
+    //     std::string line;
+    //     while (std::getline(file, line)) sourceCode += line + "\n";
+    //     m_SourceCode[shaderType] = sourceCode;
+
+    //     uint32_t shaderID = glCreateShader((shaderType == ShaderType::Vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+
+    //     const char* source = sourceCode.c_str();
+
+    //     glShaderSource(shaderID, 1, &source, NULL);
+    //     glCompileShader(shaderID);
+
+    //     CheckCompileErrors(shaderID, filePath);
+
+    //     return shaderID;
+    // }
+
+    std::string OpenGLShaders::GetSourceCode(const FilePath &path)
+    {   
+        std::ifstream file(path.GetRelativePath());
         if (!file.is_open())
         {
-            RE_CORE_ERROR("Fail to open file {0}", filePath.GetGlobalPath());
+            RE_CORE_ERROR("Fail to open file {0}", path.GetRelativePath());
         }
-        m_FilePath[shaderType] = filePath;
 
         std::string sourceCode;
         std::string line;
         while (std::getline(file, line)) sourceCode += line + "\n";
-        m_SourceCode[shaderType] = sourceCode;
+
+        return sourceCode;
+    }
+
+    uint32_t OpenGLShaders::CompileShader(const std::string &shaderSource, ShaderType shaderType)
+    {
+        m_SourceCode[shaderType] = shaderSource;
 
         uint32_t shaderID = glCreateShader((shaderType == ShaderType::Vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
 
-        const char* source = sourceCode.c_str();
+        const char* source = shaderSource.c_str();
 
         glShaderSource(shaderID, 1, &source, NULL);
         glCompileShader(shaderID);
 
-        CheckCompileErrors(shaderID, filePath);
+        CheckCompileErrors(shaderID);
 
         return shaderID;
     }
@@ -60,7 +102,7 @@ namespace Raccoon
         glDeleteShader(fragment);
     }
 
-    void OpenGLShaders::CheckCompileErrors(uint32_t shader, const FilePath &filePath)
+    void OpenGLShaders::CheckCompileErrors(uint32_t shader)
     {
         int32_t isCompiled = 0;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
@@ -71,7 +113,7 @@ namespace Raccoon
 
             std::vector<char> errorLog(maxLength);
             glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
-            RE_CORE_ERROR("Fail to compile shader ({0}):\n{1}", filePath.GetGlobalPath(), errorLog.data());
+            RE_CORE_ERROR("Fail to compile shader:\n{0}", errorLog.data());
             return;
         }
     }

@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include <Raccoon/Renderer/ShadersSources.h>
+
 namespace Raccoon
 {
     struct ColoredRectangleVertex
@@ -134,7 +136,7 @@ namespace Raccoon
         s_ColoredRectangleData.VertexArray->AddVertexBuffer(s_ColoredRectangleData.VertexBuffer);
         s_ColoredRectangleData.VertexArray->SetIndexBuffer(RectangleIndexBuffer);
 
-        s_ColoredRectangleData.Shaders = Shaders::Create("assets/shaders/ColoredRectangle.vs", "assets/shaders/ColoredRectangle.fs");
+        s_ColoredRectangleData.Shaders = Shaders::Create(ColoredRectangleVS, ColoredRectangleFS);
     // ------------------------------------------------------------------------------------------------------------------------------------
 
     // ----------------------- TEXTURED RECTANGLE -----------------------------------------------------------------------------------------
@@ -152,7 +154,7 @@ namespace Raccoon
         s_TexturedRectangleData.VertexArray->AddVertexBuffer(s_TexturedRectangleData.VertexBuffer);
         s_TexturedRectangleData.VertexArray->SetIndexBuffer(RectangleIndexBuffer); 
 
-        s_TexturedRectangleData.Shaders = Shaders::Create("assets/shaders/TexturedRectangle.vs", "assets/shaders/TexturedRectangle.fs");
+        s_TexturedRectangleData.Shaders = Shaders::Create(TexturedRectangleVS, TexturedRectangleFS);
         
         s_TexturedRectangleData.TextureUnits.resize(s_RendererData.MaxTextureUnits);
 

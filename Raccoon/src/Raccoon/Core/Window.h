@@ -1,8 +1,11 @@
 #pragma once 
 #include <Raccoon/Events/Event.h>
+#include <Raccoon/FileSystem/FilePath.h>
+#include <Raccoon/Renderer/Color.h>
 #include <string>
 #include <memory>
 #include <functional>
+#include <glm/glm.hpp>
 
 namespace Raccoon
 {
@@ -27,11 +30,22 @@ namespace Raccoon
 
         virtual void SetVSync(bool value) = 0;
         virtual bool GetVSync() const = 0;
+
         virtual void* GetNativeWindow() const = 0;
+        virtual void SetNativeWindow(void *window) = 0;
+
+        virtual void SetTitle(const std::string &title) = 0;
+        virtual void SetTitleBarDarkMode() = 0;
+        virtual void SetLogo(const FilePath &path) = 0;
+        virtual void Resize(uint32_t width, uint32_t height) = 0;
 
         virtual uint32_t GetWidth() const = 0;
         virtual uint32_t GetHeight() const = 0;    
         virtual float GetAspectRatio() const = 0;
+
+        virtual glm::uvec2 GetFramebufferSize() const = 0;
+
+        virtual void Shutdown() = 0; 
 
         static Window* Create(const WindowProperties &props = WindowProperties());
         virtual ~Window() = default;

@@ -21,8 +21,6 @@ namespace Raccoon
         Scene();
         ~Scene();
 
-        void OnUpdate(const TimeStep &timestep); // TODO: Delete
-
         void OnEditorBegin();
         void OnRuntimeBegin();
 

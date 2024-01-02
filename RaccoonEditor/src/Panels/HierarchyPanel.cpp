@@ -164,7 +164,7 @@ namespace Raccoon
 		{
 			auto& name = entity.GetComponent<NameComponent>().Name;
 
-			static char buffer[256];
+			static char buffer[100];
 			memset(buffer, 0, sizeof(buffer));
 			strncpy_s(buffer, sizeof(buffer), name.c_str(), sizeof(buffer));
 			if (ImGui::InputText("##Name", buffer, sizeof(buffer)))

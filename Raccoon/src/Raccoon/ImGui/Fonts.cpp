@@ -1,3 +1,4 @@
+#ifndef RE_NO_IMGUI
 #include <Raccoon/ImGui/Fonts.h>
 #include <Raccoon/Core/Assert.h>
 
@@ -16,3 +17,4 @@ namespace Raccoon
         m_Fonts[name] = font;
     }
 }
+#endif

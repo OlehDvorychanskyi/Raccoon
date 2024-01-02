@@ -13,6 +13,11 @@ namespace Raccoon
         Color(const std::string &hex);
         
         glm::vec4 GetRGB() const { return m_Color; }
+        float GetRed() const { return m_Color.x; }
+        float GetGreen() const { return m_Color.y; }
+        float GetBlue() const { return m_Color.z; }
+        float GetAlpha() const { return m_Color.w; }
+        
         ImVec4 GetRGBImGui() const { return {m_Color.r, m_Color.g, m_Color.b, m_Color.a}; }
     private:
         glm::vec4 m_Color;

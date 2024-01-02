@@ -1,3 +1,4 @@
+#ifndef RE_NO_IMGUI
 #include <Raccoon/ImGui/Guizmo.h>
 #include <Raccoon/Math/Math.h>
 #include <Raccoon/Core/Logger.h>
@@ -290,3 +291,4 @@ namespace Raccoon
     }
 
 }
+#endif

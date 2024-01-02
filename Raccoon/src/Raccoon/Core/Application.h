@@ -46,7 +46,9 @@ namespace Raccoon
         Window& GetWindow() { return *m_Window; }
         ApplicationSpecification& GetSpecification() { return m_Specification; }
 
-        ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; } 
+        #ifndef RE_NO_IMGUI
+            ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; } 
+        #endif
 
         float GetFrameTime() const { return m_FrameTime; }
 
@@ -57,6 +59,8 @@ namespace Raccoon
 
         void PushLayer(Layer *layer);
         void PushOverlay(Layer *overlay);
+        void PopLayer(Layer *layer);
+        void PopOverlay(Layer *overlay);
 
         static Application& Get() { return *m_Instance; }
     private:
@@ -67,7 +71,11 @@ namespace Raccoon
         ApplicationSpecification m_Specification;
         Window *m_Window;
         LayerStack m_Layers;
-        ImGuiLayer *m_ImGuiLayer;
+        
+        #ifndef RE_NO_IMGUI
+            ImGuiLayer* m_ImGuiLayer;
+        #endif 
+
         EventQueue m_Events;
         bool m_Running = true;
         static Application *m_Instance;

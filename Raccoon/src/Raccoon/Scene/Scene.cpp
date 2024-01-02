@@ -23,72 +23,10 @@ namespace Raccoon
         return m_Registry.GetEntityIndex(entity);
     }
 
-    // void Scene::SwapEntities(entt::entity entity1, entt::entity entity2)
-    // {
-    //     std::size_t order1 = GetEntityOrder(entity1);
-    //     std::size_t order2 = GetEntityOrder(entity2);
-
-    //     if (order1 != std::numeric_limits<std::size_t>::max() && order2 != std::numeric_limits<std::size_t>::max()) 
-    //     {
-    //         m_Registry.sort<entt::entity>([this, order1, order2, entity1, entity2](entt::entity a, entt::entity b) 
-    //         {
-    //             // if ((a == entity1 && b == entity2) || (a == entity2 && b == entity1))
-    //             //     return order1 < order2;
-    //             return false;
-    //         });
-    //     }
-    // }
-
     void Scene::ChangeEntityPosition(entt::entity entity, std::size_t newPosition) 
     {
         m_Registry.ChangeEntityPosition(entity, newPosition);
     }
-
-    // void Scene::OnUpdate(const TimeStep &timestep)
-    // {
-    //     // Update Native Scripts
-    //     {
-    //         auto scripts = m_Registry.GetRegistry().group<>(entt::get<NativeScriptComponent, Transform2DComponent>);
-    //         for (entt::entity entity : scripts) 
-    //         {
-    //             auto& script = m_Registry.GetRegistry().get<NativeScriptComponent>(entity);
-    //             if (script.Script == nullptr)
-    //             {
-    //                 script.Script = script.CreateScript();
-    //                 script.Script->m_Entity = Entity{entity, this};
-    //                 script.Script->OnCreate();
-    //             }
-    //             script.Script->OnUpdate(timestep);
-    //         }
-    //     }
-
-    //     // Update
-    //     {
-    //         auto entityControllers = m_Registry.GetRegistry().group<>(entt::get<EntityControllerComponent>);
-    //         for (entt::entity entity : entityControllers) 
-    //         {
-    //             auto& controller = m_Registry.GetRegistry().get<EntityControllerComponent>(entity);
-    //             controller.OnUpdate(timestep);
-    //         }
-    //     }
-
-    //     {
-    //         auto transforms = m_Registry.GetRegistry().group<>(entt::get<Transform2DComponent>);
-    //         for (entt::entity entity : transforms) 
-    //         {
-    //             auto& transform = m_Registry.GetRegistry().get<Transform2DComponent>(entity);
-    //             transform.OnUpdate();
-    //         }
-    //     }
-        
-    //     // Runtime Render2D
-    //     // if (m_PrimaryCamera.Camera)
-    //     // {
-    //     //     RenderScene(*m_PrimaryCamera.Camera, *m_PrimaryCamera.Transform); 
-    //     // }
-
-    //     RenderScene(m_EditorCamera);
-    // }   
 
     void Scene::OnEditorBegin()
     {
@@ -126,7 +64,6 @@ namespace Raccoon
 
     void Scene::OnEditorUpdate(const TimeStep &timestep, EditorCamera &camera)
     {
-        // Temp
         {
             auto transforms = m_Registry.GetRegistry().group<>(entt::get<Transform2DComponent>);
             for (entt::entity entity : transforms) 

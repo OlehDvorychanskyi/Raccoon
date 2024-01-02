@@ -3,6 +3,25 @@
 #include <Raccoon/Events/KeyEvents.h>
 #include <Raccoon/Events/MouseEvents.h>
 
+#include <stb_image.h>
+
+#include <Windows.h>
+
+enum WINDOWATTRIBUTE
+{
+	WA_ENABLEDARKMODE = 26,
+};
+
+struct WINCOMPATTRDATA
+{
+    DWORD attribute;
+    PVOID pData;
+    ULONG dataSize;
+};
+
+using fnSetWindowCompositionAttribute = BOOL (WINAPI *)(HWND hWnd, WINCOMPATTRDATA*);
+fnSetWindowCompositionAttribute _SetWindowCompositionAttribute = reinterpret_cast<fnSetWindowCompositionAttribute>(GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"));
+
 namespace Raccoon
 {
     uint32_t WindowsWindow::WindowCount = 0;
@@ -106,6 +125,26 @@ namespace Raccoon
             WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
             data.Callback(std::make_shared<KeyTypedEvent>(keycode));
         });
+    }
+
+    void WindowsWindow::SetLogo(const FilePath &path)
+    {
+        GLFWimage images[1]; 
+        images[0].pixels = stbi_load(path.GetRelativePath().c_str(), &images[0].width, &images[0].height, 0, 4);
+        glfwSetWindowIcon(m_Window, 1, images); 
+        stbi_image_free(images[0].pixels);
+    }
+
+    void WindowsWindow::SetTitleBarDarkMode()
+    {
+        HWND hwnd = glfwGetWin32Window(m_Window);
+    
+        BOOL dark = TRUE;
+        if (_SetWindowCompositionAttribute)
+        {
+            WINCOMPATTRDATA data = { WINDOWATTRIBUTE::WA_ENABLEDARKMODE, &dark, sizeof(dark) };
+            _SetWindowCompositionAttribute(hwnd, &data);
+        }
     }
 
     void WindowsWindow::SetVSync(bool value)

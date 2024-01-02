@@ -47,6 +47,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
     set(CompilerDefinitions 
         _GLFW_X11
+        GLFW_EXPOSE_NATIVE_WIN32
+        GLFW_EXPOSE_NATIVE_WGL
     )
     
 else()

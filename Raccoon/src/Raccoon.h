@@ -46,8 +46,10 @@
 #include <Raccoon/Scene/Entity.h>
 #include <Raccoon/Scene/Scene.h>
 #include <Raccoon/Scene/ScriptableEntity.h>
+#include <Raccoon/Scene/SceneSerializer.h>
 
 #include <Raccoon/Project/Project.h>
 #include <Raccoon/Project/ProjectSerializer.h>
 
 #include <Raccoon/FileSystem/FilePath.h>
+#include <Raccoon/FileSystem/FileSystem.h>

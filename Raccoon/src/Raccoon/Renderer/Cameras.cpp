@@ -10,6 +10,8 @@
 
 #include <Raccoon/Core/Assert.h>
 
+#include <imgui.h>
+
 namespace Raccoon
 {
     // ----------------------- ORTHOGRAPHIC CAMERA -----------------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ namespace Raccoon
         if (m_RecalculateProjection)
         {
             RecalculateProjection();
-            m_RecalculateProjection = true;
+            m_RecalculateProjection = false;
         }
     }
 

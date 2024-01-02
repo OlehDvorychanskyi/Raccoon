@@ -1,3 +1,4 @@
+#ifndef RE_NO_IMGUI
 #pragma once 
 #include <Raccoon/Core/Layer.h>
 
@@ -10,6 +11,8 @@ namespace Raccoon
         virtual void OnDetach() override;
         virtual void OnEvent(Event &event) override;
 
+        ImGuiLayer() : Layer("ImGui") {}
+
         void Begin();
         void End();
         void BlockEvents(bool value) { m_BlockEvents = value; }  
@@ -18,7 +21,8 @@ namespace Raccoon
     private:
         void SetDarkTheme();
     private:
-        // bool m_BlockEvents = true;
         bool m_BlockEvents = false;
+        std::string m_AppdataFolder, m_ImGuiConfigPath;
     };
 }
+#endif

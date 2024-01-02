@@ -2,6 +2,7 @@
 #include <Raccoon.h>
 
 #include <Panels/HierarchyPanel.h>
+#include <Panels/ContentBrowser.h>
 
 namespace Raccoon
 {
@@ -9,6 +10,7 @@ namespace Raccoon
     {
     public:
         EditorLayer();
+        EditorLayer(const FilePath &projectPath);
         virtual void OnAttach() override;
         virtual void OnDetach() override;
         virtual void OnEvent(Event &event) override;
@@ -24,7 +26,9 @@ namespace Raccoon
         void NewProject();
         bool OpenProject();
         void OpenProject(const FilePath& path);
-        void SaveProject();
+        void SaveProjectAs();
+
+        void SaveSceneToActiveProject(const FilePath &path);
     private:
         ParticleSystem2D m_ParticleSystem;
         Particle2D m_Particle;
@@ -39,6 +43,7 @@ namespace Raccoon
 
         // Panels 
         HierarchyPanel m_HierarchyPanel;
+        ContentBrowserPanel m_ContentBrowserPanel;
 
         enum EditorState
         {
@@ -50,5 +55,12 @@ namespace Raccoon
         bool m_ViewportFocused = false, m_ViewportHovered = false;
 
         EditorCamera m_EditorCamera;
+
+        // Export
+        bool m_ShowExportWindow = false;
+        FilePath m_ExportPath;
+        FilePath m_ActiveProjectPath;
+
+        bool m_UnsavedScene = false;
     };
 }

@@ -69,6 +69,25 @@ namespace Raccoon
         }
     }
 
+    OpenGLTexture2D::OpenGLTexture2D(unsigned char *data, unsigned int length)
+        : m_Quality {TextureQuality::Pixelated}
+    {
+        unsigned char* image = LoadTextureFromMemory(data, length); 
+
+        if (image)
+        {
+            m_Loaded = true;
+
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_Id);
+            glTextureStorage2D(m_Id, 1, ToGLInternalFormat(m_Format), m_Size.x, m_Size.y);        
+            glTextureSubImage2D(m_Id, 0, 0, 0, m_Size.x, m_Size.y, ToGLDataFormat(m_Format), GL_UNSIGNED_BYTE, data);
+
+            ApplyQuality();
+
+            stbi_image_free(image);
+        }
+    }
+
     OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height, TextureFormat internalFormat)
         : m_Size(width, height), m_Format(internalFormat), m_Quality {TextureQuality::Pixelated}
     {
@@ -109,6 +128,24 @@ namespace Raccoon
             m_Format = TextureFormat::RGBA8;
 
         return data;
+    }
+
+    unsigned char* OpenGLTexture2D::LoadTextureFromMemory(unsigned char *data, unsigned int size)
+    {
+        int32_t NRChannels, x, y;
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* image = stbi_load_from_memory(data, size, &x, &y, &NRChannels, 0);
+        RE_CORE_ASSERT(data, "Fail to load image");
+
+        m_Size.x = x;
+        m_Size.y = y;
+
+        if (NRChannels == 3)
+            m_Format = TextureFormat::RGB8;
+        else if (NRChannels == 4)
+            m_Format = TextureFormat::RGBA8;
+
+        return image;
     }
 
     void OpenGLTexture2D::Bind(uint32_t unit) const 
