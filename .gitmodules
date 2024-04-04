@@ -1,0 +1,3 @@
+[submodule "Raccoon/deps/SPDLOG/spdlog"]
+	path = Raccoon/deps/SPDLOG/spdlog
+	url = https://github.com/gabime/spdlog.git
