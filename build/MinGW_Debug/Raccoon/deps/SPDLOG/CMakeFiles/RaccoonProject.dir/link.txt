@@ -1,2 +1,0 @@
-C:\mingw64\bin\ar.exe qc libRaccoonProject.a CMakeFiles/RaccoonProject.dir/RE_BUILD.cpp.obj
-C:\mingw64\bin\ranlib.exe libRaccoonProject.a

@@ -1,6 +1,0 @@
-[19:32:59] [Raccoon] Info
-[19:32:59] [Raccoon] Warn
-[19:32:59] [Raccoon] Error
-[19:32:59] [Client] Info
-[19:32:59] [Client] Warn
-[19:32:59] [Client] Error

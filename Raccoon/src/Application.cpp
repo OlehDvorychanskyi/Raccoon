@@ -1,5 +1,6 @@
 #include <Application.h>
 #include <Logger.h>
+#include <Assert.h>
 
 namespace Raccoon
 {
@@ -21,6 +22,9 @@ namespace Raccoon
         RE_INFO("Info");
         RE_WARN("Warn");
         RE_ERROR("Error");
+
+        RE_ASSERT(true, "Client assertion");
+        RE_CORE_ASSERT(false, "Core assertion");
     }
 
     Application::~Application()

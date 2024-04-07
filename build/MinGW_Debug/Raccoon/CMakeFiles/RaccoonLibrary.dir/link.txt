@@ -1,2 +1,0 @@
-C:\mingw64\bin\ar.exe qc libRaccoonLibrary.a CMakeFiles/RaccoonLibrary.dir/src/Application.cpp.obj CMakeFiles/RaccoonLibrary.dir/src/Logger.cpp.obj
-C:\mingw64\bin\ranlib.exe libRaccoonLibrary.a
