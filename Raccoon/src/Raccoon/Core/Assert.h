@@ -1,6 +1,6 @@
 #pragma once
 #include <filesystem>
-#include <Logger.h>
+#include <Raccoon/Core/Logger.h>
 
 #define RE_STRINGIFY_MACRO(macro) #macro
 
