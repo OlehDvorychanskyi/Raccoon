@@ -26,6 +26,7 @@ namespace Raccoon
         void Run();
     private:
         Window *m_Window;
+        Window *m_SecondWindow;
 
         bool m_Running = true;
         static Application* s_Instance;

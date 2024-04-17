@@ -18,6 +18,7 @@ namespace Raccoon
     {
     public:
         virtual void ProcessEvents() = 0;
+        static void ProcessInternalEvents();
         // virtual void SwapBuffers() = 0; for future
 
         virtual void* GetNativeWindow() const = 0;
@@ -36,6 +37,8 @@ namespace Raccoon
         virtual bool GetVSync() const = 0;
 
         static Window* Create(const WindowProperties &props = WindowProperties());
-        virtual ~Window() = default;
+        virtual ~Window();
+    protected:
+        static uint32_t s_WindowCount;
     };
 }

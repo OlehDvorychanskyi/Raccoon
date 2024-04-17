@@ -5,28 +5,34 @@
 
 namespace Raccoon
 {
+    WNDCLASS WindowsWindow::s_WindowClass = {0};
+
     WindowsWindow::WindowsWindow(const WindowProperties &props)
         : m_Data {props} 
     {
-        InitWindowClass();
+        if (Window::s_WindowCount == 1)
+            InitWindowClass();
+
         InitWindow();
     }
 
     WindowsWindow::~WindowsWindow()
     {
         DestroyWindow(m_NativeWindow);
-        UnregisterClass(m_WindowClass.lpszClassName, GetModuleHandle(NULL));
+        
+        if (Window::s_WindowCount == 1)
+            UnregisterClass(s_WindowClass.lpszClassName, GetModuleHandle(NULL));
     }
 
     void WindowsWindow::InitWindowClass()
     {
-        m_WindowClass = { 0 };
-        m_WindowClass.lpfnWndProc = DefWindowProc;
-        m_WindowClass.hInstance = GetModuleHandle(NULL);
-        m_WindowClass.hbrBackground = nullptr;
-        m_WindowClass.lpszClassName = L"WindowClass";
+        s_WindowClass = { 0 };
+        s_WindowClass.lpfnWndProc = DefWindowProc;
+        s_WindowClass.hInstance = GetModuleHandle(NULL);
+        s_WindowClass.hbrBackground = nullptr;
+        s_WindowClass.lpszClassName = L"WindowClass";
 
-        RE_CORE_ASSERT(RegisterClass(&m_WindowClass), "Fail to register window class");
+        RE_CORE_ASSERT(RegisterClass(&s_WindowClass), "Fail to register window class");
     }
 
     void WindowsWindow::InitWindow()
@@ -35,7 +41,7 @@ namespace Raccoon
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        m_NativeWindow = CreateWindowEx(0, m_WindowClass.lpszClassName, converter.from_bytes(m_Data.Title).c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, m_WindowClass.hInstance, nullptr);
+        m_NativeWindow = CreateWindowEx(0, s_WindowClass.lpszClassName, converter.from_bytes(m_Data.Title).c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, s_WindowClass.hInstance, nullptr);
 
         RE_CORE_ASSERT(m_NativeWindow, "Fail to create a window");
 
@@ -43,6 +49,11 @@ namespace Raccoon
     }
 
     void WindowsWindow::ProcessEvents()
+    {
+        
+    }
+
+    void Window::ProcessInternalEvents()
     {
         MSG msg;
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))

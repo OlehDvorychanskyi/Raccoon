@@ -1,14 +1,15 @@
 #pragma once 
 #include <Raccoon/Core/Window.h>
-#include <Windows.h>
+
+class GLFWwindow;
 
 namespace Raccoon
 {
-    class WindowsWindow : public Window
+    class GLFWWindow : public Window
     {
     public:
-        WindowsWindow(const WindowProperties &props);
-        ~WindowsWindow();
+        GLFWWindow(const WindowProperties &props);
+        ~GLFWWindow();
 
         virtual void ProcessEvents() override;
 
@@ -27,12 +28,11 @@ namespace Raccoon
         virtual void SetVSync(bool value) override { } // implement when window will have renderer context
         virtual bool GetVSync() const { return m_Data.VSync; }
     private:
-        void InitWindowClass();
         void InitWindow();
+        void Shutdown();
     private:
         WindowProperties m_Data;
 
-        HWND m_NativeWindow;
-        static WNDCLASS s_WindowClass;
+        GLFWwindow *m_NativeWindow;
     };
 }

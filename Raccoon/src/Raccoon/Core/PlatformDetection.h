@@ -16,3 +16,9 @@
 #else 
     #error "Couldn't detect your platform"
 #endif
+
+#ifdef RE_PLATFORM_WINDOWS
+    #define RE_WIN32_WINDOW
+#elif RE_PLATFORM_LINUX || RE_PLATFORM_MACOS
+    #define RE_GLFW_WINDOW
+#endif

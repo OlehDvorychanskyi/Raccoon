@@ -12,18 +12,23 @@ namespace Raccoon
         s_Instance = this;
 
         m_Window = Window::Create();
+        m_SecondWindow = Window::Create({"Second Window"});
     }
 
     Application::~Application()
     {
         delete m_Window; 
+        delete m_SecondWindow; 
     }
 
     void Application::Run()
     {
         while (m_Running)
         {
-            m_Window->ProcessEvents();
+            Window::ProcessInternalEvents();
+            
+            // m_Window->ProcessEvents();
+            // m_SecondWindow->ProcessEvents();
         }
     }
 } 

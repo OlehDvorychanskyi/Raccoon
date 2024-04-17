@@ -1,3 +1,6 @@
 [submodule "Raccoon/deps/SPDLOG/spdlog"]
 	path = Raccoon/deps/SPDLOG/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Raccoon/deps/GLFW/glfw"]
+	path = Raccoon/deps/GLFW/glfw
+	url = https://github.com/glfw/glfw.git
