@@ -1,12 +1,11 @@
-#include <EntryPoint.h>
-#include <iostream>
+#include <Raccoon/Core/EntryPoint.h>
 
 class SandboxApp : public Raccoon::Application
 {
 public:
     SandboxApp(const std::string &name)
     {
-        std::cout << name << std::endl;
+        
     }
 };
 
