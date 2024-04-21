@@ -40,6 +40,30 @@ namespace Raccoon
             EventDispatcher dispatcher(*event);
             dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNCTION(OnWindowClose));
             dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FUNCTION(OnWindowResize));
+
+            for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
+            {
+                if (!(event->Handled)) 
+                {
+                    (*it)->OnEvent(*event);
+                }
+            }
         }
+    }
+
+    void Window::UpdateLayers(float dt)
+    {
+        for (auto &layer : m_Layers)
+            layer->OnUpdate(dt);
+    }
+
+    void Window::PushLayer(Layer *layer)
+    {
+        m_Layers.PushLayer(layer);
+    }
+
+    void Window::PushOverlay(Layer *overlay)
+    {
+        m_Layers.PushOverlay(overlay);
     }
 }

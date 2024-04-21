@@ -2,6 +2,7 @@
 #include <string>
 #include <Raccoon/Events/EventQueue.h>
 #include <Raccoon/Events/WindowEvents.h>
+#include <Raccoon/Core/LayerStack.h>
 
 namespace Raccoon
 {
@@ -20,6 +21,11 @@ namespace Raccoon
     {
     public:
         void ProcessEvents();
+        void UpdateLayers(float dt);
+
+        void PushLayer(Layer *layer);
+        void PushOverlay(Layer *overlay);
+
         static void ProcessInternalEvents();
         // virtual void SwapBuffers() = 0; for future
 
@@ -47,7 +53,8 @@ namespace Raccoon
         virtual void OnWindowResize(WindowResizeEvent &event) = 0;
     protected:
         EventQueue m_Events;
-        
         static uint32_t s_WindowCount;
-    };
+    private:
+        LayerStack m_Layers;
+    };  
 }

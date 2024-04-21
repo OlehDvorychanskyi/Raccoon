@@ -22,7 +22,8 @@ namespace Raccoon
         Application();
         virtual ~Application();
 
-        void RegisterWindow(Window *window);
+        void RegisterWindow(Window *window, int id);
+        Window* GetWindow(int id);
 
         static Application* Get() { return s_Instance; }
     private: 
@@ -31,7 +32,12 @@ namespace Raccoon
         
         void UnregisterWindow(Window *window);
     private:
-        std::vector<Window*> m_Windows;
+        struct WindowEntry
+        {
+            int id;
+            Window* window;
+        };
+        std::vector<WindowEntry> m_Windows;
 
         static Application* s_Instance;
     };
