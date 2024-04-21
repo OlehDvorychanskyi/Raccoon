@@ -4,6 +4,8 @@ set(RaccoonSources
     src/Raccoon/Core/Application.cpp
     src/Raccoon/Core/Logger.cpp
     src/Raccoon/Core/Window.cpp
+
+    src/Raccoon/Events/EventQueue.cpp
 )
 
 set(WindowsSources
@@ -19,6 +21,8 @@ if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
 elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
     list(APPEND RaccoonSources ${CrossPlatformSources})
 endif()
+
+# list(APPEND RaccoonSources ${CrossPlatformSources})
 
 add_subdirectory(deps/SPDLOG)
 add_subdirectory(deps/GLFW)

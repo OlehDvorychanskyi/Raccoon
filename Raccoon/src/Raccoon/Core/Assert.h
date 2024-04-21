@@ -2,8 +2,6 @@
 #include <filesystem>
 #include <Raccoon/Core/Logger.h>
 
-#define RE_STRINGIFY_MACRO(macro) #macro
-
 #define RE_INTERNAL_ASSERT_IMPL(type, check, msg, ...) { if (!(check)) { RE##type##ERROR(msg, __VA_ARGS__); __debugbreak(); } }
 
 #define RE_INTERNAL_ASSERT_WITH_MSG(type, check, ...) RE_INTERNAL_ASSERT_IMPL(type, check, "Assertion failed: {0}", __VA_ARGS__)

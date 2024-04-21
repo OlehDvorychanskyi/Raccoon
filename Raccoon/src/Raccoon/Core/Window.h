@@ -1,5 +1,7 @@
 #pragma once 
 #include <string>
+#include <Raccoon/Events/EventQueue.h>
+#include <Raccoon/Events/WindowEvents.h>
 
 namespace Raccoon
 {
@@ -17,9 +19,11 @@ namespace Raccoon
     class Window
     {
     public:
-        virtual void ProcessEvents() = 0;
+        void ProcessEvents();
         static void ProcessInternalEvents();
         // virtual void SwapBuffers() = 0; for future
+
+        virtual bool ShouldClose() const = 0;
 
         virtual void* GetNativeWindow() const = 0;
         // virtual void SetNativeWindow(void *window) = 0;
@@ -39,6 +43,11 @@ namespace Raccoon
         static Window* Create(const WindowProperties &props = WindowProperties());
         virtual ~Window();
     protected:
+        virtual void OnWindowClose(WindowCloseEvent &event) = 0;
+        virtual void OnWindowResize(WindowResizeEvent &event) = 0;
+    protected:
+        EventQueue m_Events;
+        
         static uint32_t s_WindowCount;
     };
 }
