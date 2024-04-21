@@ -1,10 +1,9 @@
 #include <Raccoon/Core/Window.h>
+#include <Raccoon/Core/Assert.h>
 
 #ifdef RE_WIN32_WINDOW
     #include <Platforms/Windows/WindowsWindow.h> 
-#endif
-
-#ifdef RE_GLFW_WINDOW
+#elif defined(RE_GLFW_WINDOW)
     #include <Platforms/GLFW/GLFWWindow.h>
 #endif
 
@@ -17,16 +16,28 @@ namespace Raccoon
         ++s_WindowCount;
         
         #ifdef RE_WIN32_WINDOW
-            return new WindowsWindow(props);
+            Window *result = new WindowsWindow(props);
+        #elif defined(RE_GLFW_WINDOW)
+            Window *result = new GLFWWindow(props);
         #endif
 
-        #ifdef RE_GLFW_WINDOW
-            return new GLFWWindow(props);
-        #endif
+        RE_CORE_ASSERT(result != nullptr, "Fail to create window");
+        return result;
     }
 
     Window::~Window()
     {
         --s_WindowCount;
+    }
+
+    void Window::ProcessEvents()
+    {
+        std::shared_ptr<Event> event;
+        while ((event = m_Events.GetFront()) != nullptr) 
+        {   
+            EventDispatcher dispatcher(*event);
+            dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNCTION(OnWindowClose));
+            dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FUNCTION(OnWindowResize));
+        }
     }
 }

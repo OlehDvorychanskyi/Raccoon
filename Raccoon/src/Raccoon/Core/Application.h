@@ -1,5 +1,6 @@
 #pragma once 
 #include <Raccoon/Core/Window.h>
+#include <vector>
 
 #ifdef RE_PLATFORM_WINDOWS
     #include <Windows.h>
@@ -21,14 +22,17 @@ namespace Raccoon
         Application();
         virtual ~Application();
 
+        void RegisterWindow(Window *window);
+
         static Application* Get() { return s_Instance; }
     private: 
         void Run();
-    private:
-        Window *m_Window;
-        Window *m_SecondWindow;
+        bool ShouldClose() { return m_Windows.size() > 0; }
 
-        bool m_Running = true;
+        void UnregisterWindow(Window *window);
+    private:
+        std::vector<Window*> m_Windows;
+
         static Application* s_Instance;
     };
 
